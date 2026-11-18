@@ -2,6 +2,7 @@ import { ipcMain } from 'electron';
 import { IPC_CHANNELS } from '@shared/constants/ipcChannels';
 import type {
   CreateTaskInput,
+  ExchangeItemInput,
   FocusSessionFilterInput,
   LinkSessionTaskInput,
   MoveGardenItemInput,
@@ -14,11 +15,13 @@ import type {
   UpdateTaskInput,
   UpdateTimerPreferencesInput
 } from '@shared/types/domain';
+import type { AchievementService } from '../services/AchievementService';
 import type { FocusHistoryService } from '../services/FocusHistoryService';
 import type { FoundationService } from '../services/FoundationService';
 import type { GardenService } from '../services/GardenService';
 import type { GoalStreakService } from '../services/GoalStreakService';
 import type { MusicService } from '../services/MusicService';
+import type { ProgressionService } from '../services/ProgressionService';
 import type { TaskService } from '../services/TaskService';
 import type { TimerSupervisor } from '../services/TimerSupervisor';
 
@@ -29,7 +32,9 @@ export function registerIpcHandlers(
   taskService: TaskService,
   goalStreakService: GoalStreakService,
   musicService: MusicService,
-  gardenService: GardenService
+  gardenService: GardenService,
+  progressionService: ProgressionService,
+  achievementService: AchievementService
 ): void {
   ipcMain.handle(IPC_CHANNELS.SYSTEM_GET_STATUS, () => {
     return foundationService.getSystemStatus();
@@ -187,6 +192,45 @@ export function registerIpcHandlers(
 
   ipcMain.handle(IPC_CHANNELS.GARDEN_CLEAR_LAYOUT, (_event, gardenId: string) => {
     return gardenService.clearGardenLayout(gardenId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.GOALS_GET_WEEKLY, (_event, localDate: string) => {
+    return goalStreakService.syncAndGetWeeklyGoals(localDate);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.GARDEN_LIST_AREAS, () => {
+    return gardenService.listGardenAreas();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.GARDEN_UNLOCK_AREA, (_event, userGardenId: string) => {
+    return gardenService.unlockGardenArea(userGardenId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.GARDEN_SWITCH_AREA, (_event, userGardenId: string) => {
+    return gardenService.switchActiveGarden(userGardenId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.PROGRESSION_GET_CATALOG, () => {
+    return progressionService.getCatalog();
+  });
+
+  ipcMain.handle(
+    IPC_CHANNELS.PROGRESSION_EXCHANGE_ITEM,
+    (_event, input: ExchangeItemInput) => {
+      return progressionService.exchangeItem(input);
+    }
+  );
+
+  ipcMain.handle(IPC_CHANNELS.PROGRESSION_LIST_TRANSACTIONS, (_event, limit?: number) => {
+    return progressionService.listTransactions(limit);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.ACHIEVEMENTS_LIST, () => {
+    return achievementService.listAchievements();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.ACHIEVEMENTS_CLAIM_REWARD, (_event, achievementId: string) => {
+    return achievementService.claimReward(achievementId);
   });
 }
 

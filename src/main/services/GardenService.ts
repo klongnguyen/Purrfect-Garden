@@ -7,7 +7,8 @@ import type {
   GardenPlacementDTO,
   GardenStateDTO,
   MoveGardenItemInput,
-  PlaceGardenItemInput
+  PlaceGardenItemInput,
+  UnlockGardenResultDTO
 } from '@shared/types/domain';
 import { isTileWithinBounds, sortPlacementsByDepth } from '@shared/utils/isometricMath';
 
@@ -20,6 +21,8 @@ interface GardenAreaRow {
   description: string;
   grid_width: number;
   grid_height: number;
+  unlock_xp_cost: number | null;
+  placed_items_count?: number;
   is_unlocked: number;
   is_active_view: number;
 }
@@ -65,6 +68,7 @@ export class GardenService {
               gad.description,
               gad.grid_width,
               gad.grid_height,
+              gad.unlock_xp_cost,
               ug.is_unlocked,
               ug.is_active_view
             FROM user_gardens ug
@@ -85,6 +89,7 @@ export class GardenService {
               gad.description,
               gad.grid_width,
               gad.grid_height,
+              gad.unlock_xp_cost,
               ug.is_unlocked,
               ug.is_active_view
             FROM user_gardens ug
@@ -110,6 +115,7 @@ export class GardenService {
       gridHeight: areaRow.grid_height,
       baseTileWidth: DEFAULT_BALANCE_CONFIG.garden.baseTileWidth,
       baseTileHeight: DEFAULT_BALANCE_CONFIG.garden.baseTileHeight,
+      unlockXpCost: areaRow.unlock_xp_cost,
       isUnlocked: areaRow.is_unlocked === 1,
       isActiveView: areaRow.is_active_view === 1
     };
@@ -188,6 +194,156 @@ export class GardenService {
     }));
 
     return { area, placements, inventory };
+  }
+
+  listGardenAreas(): GardenAreaDTO[] {
+    const rows = this.db
+      .prepare(
+        `
+        SELECT
+          ug.id AS user_garden_id,
+          gad.id AS area_definition_id,
+          gad.name,
+          ug.custom_name,
+          gad.theme,
+          gad.description,
+          gad.grid_width,
+          gad.grid_height,
+          gad.unlock_xp_cost,
+          ug.is_unlocked,
+          ug.is_active_view,
+          COUNT(gp.id) AS placed_items_count
+        FROM user_gardens ug
+        INNER JOIN garden_area_definitions gad ON gad.id = ug.area_definition_id
+        LEFT JOIN garden_placements gp ON gp.garden_id = ug.id
+        GROUP BY ug.id
+        ORDER BY COALESCE(gad.unlock_xp_cost, 0) ASC, gad.id ASC
+      `
+      )
+      .all() as GardenAreaRow[];
+
+    return rows.map((row) => ({
+      userGardenId: row.user_garden_id,
+      areaDefinitionId: row.area_definition_id,
+      name: row.name,
+      customName: row.custom_name,
+      theme: row.theme,
+      description: row.description,
+      gridWidth: row.grid_width,
+      gridHeight: row.grid_height,
+      baseTileWidth: DEFAULT_BALANCE_CONFIG.garden.baseTileWidth,
+      baseTileHeight: DEFAULT_BALANCE_CONFIG.garden.baseTileHeight,
+      unlockXpCost: row.unlock_xp_cost,
+      placedItemsCount: row.placed_items_count ?? 0,
+      isUnlocked: row.is_unlocked === 1,
+      isActiveView: row.is_active_view === 1
+    }));
+  }
+
+  unlockGardenArea(userGardenId: string): UnlockGardenResultDTO {
+    const nowIso = new Date().toISOString();
+    let result: UnlockGardenResultDTO | null = null;
+
+    const unlockTx = this.db.transaction(() => {
+      const row = this.db
+        .prepare(
+          `
+          SELECT
+            ug.id AS user_garden_id,
+            gad.id AS area_definition_id,
+            gad.name,
+            ug.custom_name,
+            gad.theme,
+            gad.description,
+            gad.grid_width,
+            gad.grid_height,
+            gad.unlock_xp_cost,
+            ug.is_unlocked,
+            ug.is_active_view
+          FROM user_gardens ug
+          INNER JOIN garden_area_definitions gad ON gad.id = ug.area_definition_id
+          WHERE ug.id = ?
+        `
+        )
+        .get(userGardenId) as GardenAreaRow | undefined;
+
+      if (!row) {
+        throw new Error(`Garden area not found: ${userGardenId}`);
+      }
+      if (row.is_unlocked === 1) {
+        throw new Error('Garden area is already unlocked.');
+      }
+
+      const cost = row.unlock_xp_cost ?? 0;
+      const latestXp = this.db
+        .prepare(
+          'SELECT balance_after FROM xp_transactions ORDER BY created_at DESC, rowid DESC LIMIT 1'
+        )
+        .get() as { balance_after: number } | undefined;
+      const currentBalance = latestXp?.balance_after ?? 0;
+
+      if (currentBalance < cost) {
+        throw new Error('Insufficient XP balance to unlock this garden area.');
+      }
+
+      const newBalance = currentBalance - cost;
+      if (cost > 0) {
+        this.db
+          .prepare(
+            `
+            INSERT INTO xp_transactions (
+              id, delta_xp, balance_after, source_type, reference_id, description, created_at
+            ) VALUES (?, ?, ?, 'shop_purchase', ?, ?, ?)
+          `
+          )
+          .run(
+            randomUUID(),
+            -cost,
+            newBalance,
+            userGardenId,
+            `Unlocked garden area: ${row.name}`,
+            nowIso
+          );
+      }
+
+      this.db
+        .prepare('UPDATE user_gardens SET is_unlocked = 1, unlocked_at = ? WHERE id = ?')
+        .run(nowIso, userGardenId);
+
+      const unlockedArea = this.listGardenAreas().find(
+        (a) => a.userGardenId === userGardenId
+      )!;
+      result = {
+        area: unlockedArea,
+        xpSpent: cost,
+        newXpBalance: newBalance
+      };
+    });
+
+    unlockTx();
+    return result!;
+  }
+
+  switchActiveGarden(userGardenId: string): GardenStateDTO {
+    const switchTx = this.db.transaction(() => {
+      const target = this.db
+        .prepare('SELECT id, is_unlocked FROM user_gardens WHERE id = ?')
+        .get(userGardenId) as { id: string; is_unlocked: number } | undefined;
+
+      if (!target) {
+        throw new Error(`Garden area not found: ${userGardenId}`);
+      }
+      if (target.is_unlocked !== 1) {
+        throw new Error('Cannot switch to a locked garden area.');
+      }
+
+      this.db
+        .prepare('UPDATE user_gardens SET is_active_view = CASE WHEN id = ? THEN 1 ELSE 0 END')
+        .run(userGardenId);
+    });
+
+    switchTx();
+    return this.getGardenState(userGardenId);
   }
 
   placeItem(input: PlaceGardenItemInput): GardenStateDTO {

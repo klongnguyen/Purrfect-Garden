@@ -33,7 +33,16 @@ export const IPC_CHANNELS = Object.freeze({
   GARDEN_PLACE_ITEM: 'garden:place-item',
   GARDEN_MOVE_ITEM: 'garden:move-item',
   GARDEN_REMOVE_ITEM: 'garden:remove-item',
-  GARDEN_CLEAR_LAYOUT: 'garden:clear-layout'
+  GARDEN_CLEAR_LAYOUT: 'garden:clear-layout',
+  GOALS_GET_WEEKLY: 'goals:get-weekly',
+  GARDEN_LIST_AREAS: 'garden:list-areas',
+  GARDEN_UNLOCK_AREA: 'garden:unlock-area',
+  GARDEN_SWITCH_AREA: 'garden:switch-area',
+  PROGRESSION_GET_CATALOG: 'progression:get-catalog',
+  PROGRESSION_EXCHANGE_ITEM: 'progression:exchange-item',
+  PROGRESSION_LIST_TRANSACTIONS: 'progression:list-transactions',
+  ACHIEVEMENTS_LIST: 'achievements:list',
+  ACHIEVEMENTS_CLAIM_REWARD: 'achievements:claim-reward'
 } as const);
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

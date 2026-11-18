@@ -11,6 +11,7 @@ import {
   X
 } from 'lucide-react';
 import type { TimerMode } from '@shared/types/domain';
+import { GardenThemePreviewBanner, PetIllustration } from '../components/garden/PixelSprite';
 import { TimerControls } from '../components/timer/TimerControls';
 import { useAppStore } from '../stores/useAppStore';
 import { useGoalStore } from '../stores/useGoalStore';
@@ -289,19 +290,56 @@ export function FocusFoundationView() {
 
         {/* Secondary Garden Preview & Rules Summary */}
         <aside className="space-y-4">
-          <div className="cozy-card p-5">
-            <div className="flex items-center gap-2 text-sm font-bold text-cozy-wood">
-              <Flower2 className="h-4 w-4 text-cozy-sage-dark" />
-              <span>Active Garden Preview</span>
+          <div className="cozy-card overflow-hidden p-4">
+            <div className="flex items-center justify-between gap-2 text-sm font-bold text-cozy-wood">
+              <span className="flex items-center gap-2">
+                <Flower2 className="h-4 w-4 text-cozy-sage-dark" />
+                <span>Active Garden Preview</span>
+              </span>
+              <span className="rounded-full bg-cozy-meadow px-2 py-0.5 text-[10px] font-bold text-cozy-sage-dark">
+                {activeGarden?.gridWidth ?? 12}×{activeGarden?.gridHeight ?? 12}
+              </span>
             </div>
-            <div className="mt-3 rounded-xl border border-cozy-border bg-gradient-to-br from-cozy-meadow to-cozy-cream p-4">
-              <p className="text-sm font-semibold text-cozy-wood">
-                {activeGarden?.name ?? 'Sunlit Meadow'}
-              </p>
-              <p className="mt-1 text-xs text-cozy-muted">
-                {activeGarden?.gridWidth ?? 12}×{activeGarden?.gridHeight ?? 12} Isometric Grid ·{' '}
-                {activeGarden?.baseTileWidth ?? 64}×{activeGarden?.baseTileHeight ?? 32}px Tile Scale
-              </p>
+
+            <button
+              type="button"
+              onClick={() => setActiveSection('garden')}
+              className="group relative mt-3 block h-32 w-full overflow-hidden rounded-2xl border-2 border-cozy-border text-left shadow-inner transition hover:border-cozy-sage"
+            >
+              <GardenThemePreviewBanner theme={activeGarden?.theme ?? 'spring_meadow'} />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/35 to-transparent px-3 pb-2 pt-6">
+                <p className="text-sm font-bold text-white">
+                  {activeGarden?.name ?? 'Sunlit Meadow'}
+                </p>
+                <p className="text-[11px] text-white/85">
+                  {activeGarden?.baseTileWidth ?? 64}×{activeGarden?.baseTileHeight ?? 32}px Isometric Diorama · Open Garden →
+                </p>
+              </div>
+            </button>
+
+            <div className="mt-3 flex items-center gap-3 rounded-xl border border-cozy-border bg-cozy-cream/85 px-3 py-2">
+              <PetIllustration species="cat" size={48} />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-cozy-wood">Miso Companion</span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                      timerState.status === 'running'
+                        ? 'bg-cozy-meadow text-cozy-sage-dark'
+                        : 'bg-cozy-panel text-cozy-muted'
+                    }`}
+                  >
+                    {timerState.status === 'running'
+                      ? 'Studying ♥'
+                      : timerState.status === 'paused'
+                        ? 'Resting'
+                        : 'Ready'}
+                  </span>
+                </div>
+                <p className="mt-0.5 text-[11px] text-cozy-muted">
+                  The garden grows whenever you finish focus sessions.
+                </p>
+              </div>
             </div>
           </div>
 

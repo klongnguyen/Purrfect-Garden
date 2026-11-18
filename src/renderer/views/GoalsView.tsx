@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { CheckCircle2, Flame, Gift, Sparkles, Target, Trophy, X } from 'lucide-react';
+import type { DailyGoalItemDTO } from '@shared/types/domain';
 import { useGoalStore } from '../stores/useGoalStore';
 import { formatDurationHuman } from '../utils/formatTime';
 
 export function GoalsView() {
   const dailyGoals = useGoalStore((s) => s.dailyGoals);
+  const weeklyGoals = useGoalStore((s) => s.weeklyGoals);
   const streakOverview = useGoalStore((s) => s.streakOverview);
   const isLoadingGoals = useGoalStore((s) => s.isLoadingGoals);
   const claimingGoalId = useGoalStore((s) => s.claimingGoalId);
@@ -123,88 +125,127 @@ export function GoalsView() {
       </section>
 
       {/* Today's Daily Goals */}
-      <section className="cozy-card space-y-4 p-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-cozy-wood">Today&apos;s Daily Goals</h3>
-          <span className="text-xs text-cozy-muted">
-            {dailyGoals.filter((g) => g.isCompleted).length} / {dailyGoals.length} completed
-          </span>
-        </div>
+      <GoalSectionCard
+        title="Today's Daily Goals"
+        emptyMessage="Loading daily goals..."
+        goals={dailyGoals}
+        isLoading={isLoadingGoals}
+        claimingGoalId={claimingGoalId}
+        onClaim={(id) => void claimReward(id)}
+      />
 
-        {isLoadingGoals && dailyGoals.length === 0 ? (
-          <p className="py-6 text-center text-xs text-cozy-muted">Loading daily goals...</p>
-        ) : (
-          <div className="space-y-3">
-            {dailyGoals.map((goal) => {
-              const pct = Math.min(
-                100,
-                Math.round((goal.currentValue / Math.max(1, goal.targetValue)) * 100)
-              );
-              const canClaim = goal.isCompleted && !goal.rewardClaimed;
+      {/* This Week's Goals */}
+      <GoalSectionCard
+        title="This Week's Goals"
+        emptyMessage="Loading weekly goals..."
+        goals={weeklyGoals}
+        isLoading={isLoadingGoals}
+        claimingGoalId={claimingGoalId}
+        onClaim={(id) => void claimReward(id)}
+      />
+    </div>
+  );
+}
 
-              return (
-                <div
-                  key={goal.id}
-                  className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-cozy-border bg-cozy-cream/70 p-4"
-                >
-                  <div className="min-w-[220px] flex-1">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2
-                        className={`h-4 w-4 shrink-0 ${
-                          goal.isCompleted ? 'text-cozy-sage-dark' : 'text-cozy-border'
+interface GoalSectionCardProps {
+  title: string;
+  emptyMessage: string;
+  goals: DailyGoalItemDTO[];
+  isLoading: boolean;
+  claimingGoalId: string | null;
+  onClaim: (goalInstanceId: string) => void;
+}
+
+function GoalSectionCard({
+  title,
+  emptyMessage,
+  goals,
+  isLoading,
+  claimingGoalId,
+  onClaim
+}: GoalSectionCardProps) {
+  return (
+    <section className="cozy-card space-y-4 p-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-bold text-cozy-wood">{title}</h3>
+        <span className="text-xs text-cozy-muted">
+          {goals.filter((g) => g.isCompleted).length} / {goals.length} completed
+        </span>
+      </div>
+
+      {isLoading && goals.length === 0 ? (
+        <p className="py-6 text-center text-xs text-cozy-muted">{emptyMessage}</p>
+      ) : (
+        <div className="space-y-3">
+          {goals.map((goal) => {
+            const pct = Math.min(
+              100,
+              Math.round((goal.currentValue / Math.max(1, goal.targetValue)) * 100)
+            );
+            const canClaim = goal.isCompleted && !goal.rewardClaimed;
+
+            return (
+              <div
+                key={goal.id}
+                className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-cozy-border bg-cozy-cream/70 p-4"
+              >
+                <div className="min-w-[220px] flex-1">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2
+                      className={`h-4 w-4 shrink-0 ${
+                        goal.isCompleted ? 'text-cozy-sage-dark' : 'text-cozy-border'
+                      }`}
+                    />
+                    <p className="text-sm font-semibold text-cozy-wood">{goal.title}</p>
+                  </div>
+
+                  <div className="mt-2 flex items-center gap-3">
+                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-cozy-panel">
+                      <div
+                        style={{ width: `${pct}%` }}
+                        className={`h-full rounded-full transition-all ${
+                          goal.isCompleted ? 'bg-cozy-sage-dark' : 'bg-cozy-sage'
                         }`}
                       />
-                      <p className="text-sm font-semibold text-cozy-wood">{goal.title}</p>
                     </div>
-
-                    <div className="mt-2 flex items-center gap-3">
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-cozy-panel">
-                        <div
-                          style={{ width: `${pct}%` }}
-                          className={`h-full rounded-full transition-all ${
-                            goal.isCompleted ? 'bg-cozy-sage-dark' : 'bg-cozy-sage'
-                          }`}
-                        />
-                      </div>
-                      <span className="font-mono text-xs font-semibold text-cozy-muted">
-                        {goal.currentValue} / {goal.targetValue}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="shrink-0">
-                    {goal.rewardClaimed ? (
-                      <span className="inline-flex items-center gap-1 rounded-xl border border-cozy-sage/40 bg-cozy-meadow px-3 py-1.5 text-xs font-semibold text-cozy-sage-dark">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        Claimed (+{goal.rewardXp} XP)
-                      </span>
-                    ) : canClaim ? (
-                      <button
-                        type="button"
-                        disabled={claimingGoalId === goal.id}
-                        onClick={() => void claimReward(goal.id)}
-                        className="cozy-btn-primary py-2 text-xs"
-                      >
-                        <Gift className="h-3.5 w-3.5" />
-                        <span>
-                          {claimingGoalId === goal.id
-                            ? 'Claiming...'
-                            : `Claim +${goal.rewardXp} XP`}
-                        </span>
-                      </button>
-                    ) : (
-                      <span className="rounded-xl border border-cozy-border bg-white px-3 py-1.5 text-xs font-semibold text-cozy-muted">
-                        Reward: +{goal.rewardXp} XP
-                      </span>
-                    )}
+                    <span className="font-mono text-xs font-semibold text-cozy-muted">
+                      {goal.currentValue} / {goal.targetValue}
+                    </span>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
-    </div>
+
+                <div className="shrink-0">
+                  {goal.rewardClaimed ? (
+                    <span className="inline-flex items-center gap-1 rounded-xl border border-cozy-sage/40 bg-cozy-meadow px-3 py-1.5 text-xs font-semibold text-cozy-sage-dark">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      Claimed (+{goal.rewardXp} XP)
+                    </span>
+                  ) : canClaim ? (
+                    <button
+                      type="button"
+                      disabled={claimingGoalId === goal.id}
+                      onClick={() => onClaim(goal.id)}
+                      className="cozy-btn-primary py-2 text-xs"
+                    >
+                      <Gift className="h-3.5 w-3.5" />
+                      <span>
+                        {claimingGoalId === goal.id
+                          ? 'Claiming...'
+                          : `Claim +${goal.rewardXp} XP`}
+                      </span>
+                    </button>
+                  ) : (
+                    <span className="rounded-xl border border-cozy-border bg-white px-3 py-1.5 text-xs font-semibold text-cozy-muted">
+                      Reward: +{goal.rewardXp} XP
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
   );
 }
 

@@ -1,5 +1,7 @@
 import { AlertCircle } from 'lucide-react';
 import { useAppStore } from '../../stores/useAppStore';
+import { AchievementsView } from '../../views/AchievementsView';
+import { CollectionView } from '../../views/CollectionView';
 import { FocusFoundationView } from '../../views/FocusFoundationView';
 import { GardenFoundationView } from '../../views/GardenFoundationView';
 import { GoalsView } from '../../views/GoalsView';
@@ -35,6 +37,10 @@ export function AppShell() {
         return <TasksView />;
       case 'goals':
         return <GoalsView />;
+      case 'achievements':
+        return <AchievementsView />;
+      case 'collection':
+        return <CollectionView />;
       case 'music':
         return <MusicView />;
       case 'statistics':

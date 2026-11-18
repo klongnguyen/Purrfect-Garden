@@ -5,6 +5,7 @@ import { getLocalDateKey, useAppStore } from './useAppStore';
 
 interface GoalStoreState {
   dailyGoals: DailyGoalItemDTO[];
+  weeklyGoals: DailyGoalItemDTO[];
   streakOverview: StreakOverviewDTO | null;
   isLoadingGoals: boolean;
   claimingGoalId: string | null;
@@ -29,6 +30,7 @@ const FALLBACK_STREAK: StreakOverviewDTO = {
 
 export const useGoalStore = create<GoalStoreState>((set) => ({
   dailyGoals: [],
+  weeklyGoals: [],
   streakOverview: null,
   isLoadingGoals: false,
   claimingGoalId: null,
@@ -42,6 +44,7 @@ export const useGoalStore = create<GoalStoreState>((set) => ({
     if (!api) {
       set({
         dailyGoals: [],
+        weeklyGoals: [],
         streakOverview: FALLBACK_STREAK,
         isLoadingGoals: false,
         goalError: null
@@ -51,13 +54,15 @@ export const useGoalStore = create<GoalStoreState>((set) => ({
 
     set({ isLoadingGoals: true, goalError: null });
     try {
-      const [dailyGoals, streakOverview] = await Promise.all([
+      const [dailyGoals, weeklyGoals, streakOverview] = await Promise.all([
         api.goals.getDailyGoals(localDate),
+        api.goals.getWeeklyGoals(localDate),
         api.goals.getStreakOverview(localDate)
       ]);
       set({
         isLoadingGoals: false,
         dailyGoals,
+        weeklyGoals,
         streakOverview
       });
     } catch (error) {
@@ -78,6 +83,7 @@ export const useGoalStore = create<GoalStoreState>((set) => ({
       set((state) => ({
         claimingGoalId: null,
         dailyGoals: state.dailyGoals.map((g) => (g.id === goalInstanceId ? result.goal : g)),
+        weeklyGoals: state.weeklyGoals.map((g) => (g.id === goalInstanceId ? result.goal : g)),
         lastClaimBanner: `Claimed +${result.xpAwarded} XP! New balance: ${result.newXpBalance} XP.`
       }));
       await useAppStore.getState().refreshProgression();

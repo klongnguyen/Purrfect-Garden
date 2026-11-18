@@ -1,8 +1,13 @@
 import type {
+  AchievementItemDTO,
+  CatalogItemDTO,
+  ClaimAchievementRewardResultDTO,
   ClaimGoalRewardResultDTO,
   CreateTaskInput,
   DailyGoalItemDTO,
   DailyHeatmapCellDTO,
+  ExchangeItemInput,
+  ExchangeItemResultDTO,
   FocusCompletionResult,
   FocusSessionFilterInput,
   FocusSessionHistoryItemDTO,
@@ -24,9 +29,11 @@ import type {
   TimerPreferencesDTO,
   TimerStateSnapshot,
   ToggleTaskCompleteInput,
+  UnlockGardenResultDTO,
   UpdateMusicPreferencesInput,
   UpdateTaskInput,
-  UpdateTimerPreferencesInput
+  UpdateTimerPreferencesInput,
+  XPTransactionDTO
 } from './domain';
 
 export interface PurrfectAPI {
@@ -39,9 +46,15 @@ export interface PurrfectAPI {
   };
   progression: {
     getOverview(localDate: string): Promise<ProgressionOverviewDTO>;
+    getCatalog(): Promise<CatalogItemDTO[]>;
+    exchangeItem(input: ExchangeItemInput): Promise<ExchangeItemResultDTO>;
+    listTransactions(limit?: number): Promise<XPTransactionDTO[]>;
   };
   garden: {
     getActiveArea(): Promise<GardenAreaDTO>;
+    listAreas(): Promise<GardenAreaDTO[]>;
+    unlockArea(userGardenId: string): Promise<UnlockGardenResultDTO>;
+    switchArea(userGardenId: string): Promise<GardenStateDTO>;
     getState(gardenId?: string): Promise<GardenStateDTO>;
     placeItem(input: PlaceGardenItemInput): Promise<GardenStateDTO>;
     moveItem(input: MoveGardenItemInput): Promise<GardenStateDTO>;
@@ -50,8 +63,13 @@ export interface PurrfectAPI {
   };
   goals: {
     getDailyGoals(localDate: string): Promise<DailyGoalItemDTO[]>;
+    getWeeklyGoals(localDate: string): Promise<DailyGoalItemDTO[]>;
     claimGoalReward(goalInstanceId: string): Promise<ClaimGoalRewardResultDTO>;
     getStreakOverview(localDate: string): Promise<StreakOverviewDTO>;
+  };
+  achievements: {
+    list(): Promise<AchievementItemDTO[]>;
+    claimReward(achievementId: string): Promise<ClaimAchievementRewardResultDTO>;
   };
   music: {
     getPreferences(): Promise<MusicPreferencesDTO>;

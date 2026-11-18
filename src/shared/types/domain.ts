@@ -117,6 +117,8 @@ export interface GardenAreaDTO {
   gridHeight: number;
   baseTileWidth: number;
   baseTileHeight: number;
+  unlockXpCost: number | null;
+  placedItemsCount?: number;
   isUnlocked: boolean;
   isActiveView: boolean;
 }
@@ -348,5 +350,86 @@ export interface MoveGardenItemInput {
   placementId: string;
   tileX: number;
   tileY: number;
+}
+
+export type ItemCategory = 'plant' | 'seed' | 'tool' | 'technology' | 'decor' | 'ticket';
+export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic';
+
+export interface CatalogItemDTO {
+  itemId: string;
+  name: string;
+  category: ItemCategory;
+  description: string;
+  rarity: ItemRarity;
+  xpCost: number | null;
+  spriteKey: string;
+  isPlaceable: boolean;
+  ownedQuantity: number;
+  placedCount: number;
+  availableQuantity: number;
+  firstAcquiredAt: string | null;
+}
+
+export interface ExchangeItemInput {
+  itemId: string;
+  quantity?: number;
+}
+
+export interface ExchangeItemResultDTO {
+  item: CatalogItemDTO;
+  quantityPurchased: number;
+  xpSpent: number;
+  newXpBalance: number;
+}
+
+export interface XPTransactionDTO {
+  id: string;
+  deltaXp: number;
+  balanceAfter: number;
+  sourceType: string;
+  referenceId: string | null;
+  description: string;
+  createdAt: string;
+}
+
+export interface UnlockGardenResultDTO {
+  area: GardenAreaDTO;
+  xpSpent: number;
+  newXpBalance: number;
+}
+
+export type AchievementCategory =
+  | 'focus_master'
+  | 'consistency'
+  | 'green_thumb'
+  | 'explorer'
+  | 'collector'
+  | 'pet_lover'
+  | 'early_bird'
+  | 'night_owl';
+
+export type AchievementTier = 'bronze' | 'silver' | 'gold';
+
+export interface AchievementItemDTO {
+  id: string;
+  category: AchievementCategory;
+  tier: AchievementTier;
+  name: string;
+  description: string;
+  targetValue: number;
+  progressValue: number;
+  isUnlocked: boolean;
+  unlockedAt: string | null;
+  isViewed: boolean;
+  rewardClaimed: boolean;
+  rewardXp: number;
+  rewardTickets: number;
+  iconKey: string;
+}
+
+export interface ClaimAchievementRewardResultDTO {
+  achievement: AchievementItemDTO;
+  xpAwarded: number;
+  newXpBalance: number;
 }
 

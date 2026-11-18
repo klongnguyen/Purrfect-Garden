@@ -25,23 +25,23 @@
 
 @layer components {
   .cozy-card {
-    @apply rounded-2xl border border-cozy-border bg-white/80 shadow-cozy backdrop-blur-sm;
+    @apply rounded-2xl border-2 border-[#D8C5AE] bg-[#FFFDF8]/95 shadow-[0_3px_0_#DFD0BC] backdrop-blur-sm;
   }
 
   .cozy-panel-surface {
-    @apply rounded-2xl border border-cozy-border bg-cozy-panel;
+    @apply rounded-2xl border-2 border-[#D8C5AE] bg-cozy-panel shadow-[0_2px_0_#E3D5C3];
   }
 
   .cozy-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-cozy-sage px-4 py-2.5 text-sm font-semibold text-white shadow-pixel-sm transition hover:bg-cozy-sage-dark active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border-2 border-[#3E613F] bg-cozy-sage px-4 py-2 text-sm font-semibold text-white shadow-[0_2px_0_#345235] transition hover:bg-cozy-sage-dark active:translate-y-0.5 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .cozy-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-cozy-border bg-cozy-cream px-4 py-2 text-sm font-medium text-cozy-wood transition hover:bg-cozy-panel;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border-2 border-[#D4BEAA] bg-cozy-cream px-4 py-2 text-sm font-medium text-cozy-wood shadow-[0_2px_0_#E2D2C0] transition hover:bg-cozy-panel active:translate-y-0.5 active:shadow-none;
   }
 
   .cozy-input {
-    @apply w-full rounded-xl border border-cozy-border bg-cozy-cream px-3 py-2 text-sm text-cozy-ink outline-none transition focus:border-cozy-sage focus:ring-2 focus:ring-cozy-sage/25;
+    @apply w-full rounded-xl border-2 border-[#D8C5AE] bg-cozy-cream px-3 py-2 text-sm text-cozy-ink outline-none transition focus:border-cozy-sage focus:ring-2 focus:ring-cozy-sage/25;
   }
 }
 

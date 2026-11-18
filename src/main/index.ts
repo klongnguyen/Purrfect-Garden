@@ -4,11 +4,13 @@ import type Database from 'better-sqlite3';
 import { IPC_CHANNELS } from '@shared/constants/ipcChannels';
 import { createDatabaseConnection } from './database/connection';
 import { runMigrations } from './database/migrator';
+import { AchievementService } from './services/AchievementService';
 import { FoundationService } from './services/FoundationService';
 import { FocusHistoryService } from './services/FocusHistoryService';
 import { GardenService } from './services/GardenService';
 import { GoalStreakService } from './services/GoalStreakService';
 import { MusicService } from './services/MusicService';
+import { ProgressionService } from './services/ProgressionService';
 import { TaskService } from './services/TaskService';
 import { TimerSupervisor } from './services/TimerSupervisor';
 import { registerIpcHandlers } from './ipc/registerIpcHandlers';
@@ -88,6 +90,8 @@ app.whenReady().then(() => {
   const goalStreakService = new GoalStreakService(database);
   const musicService = new MusicService(database);
   const gardenService = new GardenService(database);
+  const progressionService = new ProgressionService(database);
+  const achievementService = new AchievementService(database);
   timerSupervisor = new TimerSupervisor(database, {
     onTick: (snapshot) => broadcastToRenderer(IPC_CHANNELS.TIMER_TICK_EVENT, snapshot),
     onCompleted: (result) =>
@@ -101,7 +105,9 @@ app.whenReady().then(() => {
     taskService,
     goalStreakService,
     musicService,
-    gardenService
+    gardenService,
+    progressionService,
+    achievementService
   );
 
   mainWindow = createMainWindow();

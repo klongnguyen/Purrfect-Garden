@@ -235,5 +235,177 @@ function seedDefaultData(db: Database.Database, nowIso: string): void {
     insertItemDef.run(id, category, name, desc, rarity, cost, spriteKey);
     insertInventoryItem.run(id, qty, nowIso, nowIso);
   }
+
+  // Phase 2: Additional unlockable garden areas (expandable grids)
+  const insertAreaDef = db.prepare(`
+    INSERT OR IGNORE INTO garden_area_definitions (
+      id, name, theme, description, grid_width, grid_height, unlock_xp_cost, unlock_condition_key
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
+  `);
+
+  const insertUserGarden = db.prepare(`
+    INSERT OR IGNORE INTO user_gardens (
+      id, area_definition_id, custom_name, is_unlocked, unlocked_at, is_active_view
+    ) VALUES (?, ?, ?, 0, NULL, 0)
+  `);
+
+  const extraAreas: Array<[string, string, string, string, number, number, number, string, string]> = [
+    [
+      'autumn_grove',
+      'Amber Autumn Grove',
+      'autumn_grove',
+      'Warm golden leaves and crisp study air across an expanded 14x14 meadow.',
+      14,
+      14,
+      80,
+      'user_garden_autumn',
+      'Amber Autumn Grove'
+    ],
+    [
+      'winter_sanctuary',
+      'Snowdrop Winter Sanctuary',
+      'winter_sanctuary',
+      'Peaceful frost-kissed garden tiles for quiet deep-focus days.',
+      14,
+      14,
+      140,
+      'user_garden_winter',
+      'Snowdrop Winter Sanctuary'
+    ],
+    [
+      'starlight_conservatory',
+      'Starlight Conservatory',
+      'magical_garden',
+      'A spacious 16x16 twilight sanctuary glowing with soft botanical light.',
+      16,
+      16,
+      220,
+      'user_garden_starlight',
+      'Starlight Conservatory'
+    ]
+  ];
+
+  for (const [areaId, name, theme, desc, w, h, cost, userGardenId, customName] of extraAreas) {
+    insertAreaDef.run(areaId, name, theme, desc, w, h, cost);
+    insertUserGarden.run(userGardenId, areaId, customName);
+  }
+
+  // Phase 2: Expanded catalog items (seeds, plants, tools, technologies)
+  const catalogItems: Array<[string, string, string, string, string, number, string]> = [
+    [
+      'item_sunflower_seed',
+      'seed',
+      'Golden Sunflower Seeds',
+      'Packet of plump sunflower seeds ready to sprout in warm soil.',
+      'common',
+      15,
+      'sunflower_seed'
+    ],
+    [
+      'item_moonflower_seed',
+      'seed',
+      'Moonflower Seed Tray',
+      'Rare night-blooming seeds in a neat wooden starter tray.',
+      'rare',
+      40,
+      'moonflower_seed'
+    ],
+    [
+      'item_cherry_bonsai',
+      'plant',
+      'Cherry Blossom Bonsai',
+      'Miniature pink-petaled bonsai tree symbolizing patience and focus.',
+      'rare',
+      65,
+      'cherry_bonsai'
+    ],
+    [
+      'item_crystal_lotus',
+      'plant',
+      'Crystal Pond Lotus',
+      'Luminous water lotus that thrives on consistent study streaks.',
+      'epic',
+      110,
+      'crystal_lotus'
+    ],
+    [
+      'item_pruning_shears',
+      'tool',
+      'Artisan Pruning Shears',
+      'Finely balanced brass shears for shaping cozy garden shrubs.',
+      'uncommon',
+      35,
+      'pruning_shears'
+    ],
+    [
+      'item_solar_dew_collector',
+      'technology',
+      'Solar Dew Collector',
+      'Gentle glass condenser that harvests morning mist using sunlight.',
+      'rare',
+      85,
+      'solar_dew_collector'
+    ],
+    [
+      'item_greenhouse_lamp',
+      'technology',
+      'Cozy Greenhouse Grow-Lamp',
+      'Soft-spectrum botanical lamp that keeps plants happy on cloudy days.',
+      'epic',
+      120,
+      'greenhouse_lamp'
+    ]
+  ];
+
+  for (const [id, category, name, desc, rarity, cost, spriteKey] of catalogItems) {
+    insertItemDef.run(id, category, name, desc, rarity, cost, spriteKey);
+  }
+
+  // Phase 2: Weekly goal templates
+  const insertWeeklyGoal = db.prepare(`
+    INSERT OR IGNORE INTO goal_templates (
+      id, period_type, metric_type, title, target_value, reward_xp, reward_item_id, is_active
+    ) VALUES (?, 'weekly', ?, ?, ?, ?, NULL, 1)
+  `);
+
+  const weeklyGoals: Array<[string, string, string, number, number]> = [
+    ['goal_weekly_focus_150m', 'focus_minutes', 'Focus for at least 150 minutes this week', 150, 60],
+    ['goal_weekly_sessions_8', 'focus_sessions', 'Complete 8 focus sessions this week', 8, 50],
+    ['goal_weekly_tasks_5', 'tasks_completed', 'Complete 5 tasks this week', 5, 45]
+  ];
+
+  for (const [id, metric, title, target, rewardXp] of weeklyGoals) {
+    insertWeeklyGoal.run(id, metric, title, target, rewardXp);
+  }
+
+  // Phase 2: Achievements across all 8 PRD categories
+  const insertAchievement = db.prepare(`
+    INSERT OR IGNORE INTO achievement_definitions (
+      id, category, tier, name, description, target_value, reward_xp, reward_tickets, icon_key
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const achievements: Array<[string, string, string, string, string, number, number, number, string]> = [
+    ['ach_focus_bronze', 'focus_master', 'bronze', 'First Sprout of Focus', 'Complete 1 focus session', 1, 15, 0, 'timer'],
+    ['ach_focus_silver', 'focus_master', 'silver', 'Steady Scholar', 'Accumulate 120 minutes of valid focus time', 120, 40, 0, 'timer'],
+    ['ach_focus_gold', 'focus_master', 'gold', 'Master of Deep Work', 'Accumulate 600 minutes of valid focus time', 600, 100, 1, 'timer'],
+    ['ach_streak_bronze', 'consistency', 'bronze', 'Three-Day Rhythm', 'Reach a 3-day focus streak', 3, 25, 0, 'flame'],
+    ['ach_streak_silver', 'consistency', 'silver', 'Full Week Harmony', 'Reach a 7-day focus streak', 7, 60, 1, 'flame'],
+    ['ach_streak_gold', 'consistency', 'gold', 'Unwavering Habit', 'Reach a 30-day focus streak', 30, 150, 2, 'flame'],
+    ['ach_green_bronze', 'green_thumb', 'bronze', 'Budding Gardener', 'Place 3 items in your gardens', 3, 15, 0, 'flower'],
+    ['ach_green_silver', 'green_thumb', 'silver', 'Flourishing Diorama', 'Place 10 items across your gardens', 10, 45, 0, 'flower'],
+    ['ach_explorer_bronze', 'explorer', 'bronze', 'Meadow Settler', 'Have 1 unlocked garden area', 1, 10, 0, 'map'],
+    ['ach_explorer_silver', 'explorer', 'silver', 'Realm Expander', 'Unlock 2 garden areas', 2, 50, 0, 'map'],
+    ['ach_explorer_gold', 'explorer', 'gold', 'Grand Sanctuaries', 'Unlock all 4 garden areas', 4, 120, 1, 'map'],
+    ['ach_collector_bronze', 'collector', 'bronze', 'Curious Collector', 'Own 6 distinct item types in your collection', 6, 20, 0, 'book'],
+    ['ach_collector_silver', 'collector', 'silver', 'Botanical Archivist', 'Own 10 distinct item types in your collection', 10, 55, 1, 'book'],
+    ['ach_pet_bronze', 'pet_lover', 'bronze', 'Cozy Companion', 'Collect your first pet companion', 1, 30, 0, 'cat'],
+    ['ach_early_bird', 'early_bird', 'bronze', 'Morning Dew Focus', 'Complete a focus session started during morning hours (05:00-11:59)', 1, 20, 0, 'sun'],
+    ['ach_night_owl', 'night_owl', 'bronze', 'Starlight Study', 'Complete a focus session started during evening/night hours (20:00-03:59)', 1, 20, 0, 'moon']
+  ];
+
+  for (const row of achievements) {
+    insertAchievement.run(...row);
+  }
 }
 

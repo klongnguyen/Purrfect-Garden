@@ -32,6 +32,7 @@ interface GardenAreaRow {
   description: string;
   grid_width: number;
   grid_height: number;
+  unlock_xp_cost: number | null;
   is_unlocked: number;
   is_active_view: number;
 }
@@ -191,6 +192,7 @@ export class FoundationService {
           gad.description,
           gad.grid_width,
           gad.grid_height,
+          gad.unlock_xp_cost,
           ug.is_unlocked,
           ug.is_active_view
         FROM user_gardens ug
@@ -217,6 +219,7 @@ export class FoundationService {
       gridHeight: row.grid_height,
       baseTileWidth: DEFAULT_BALANCE_CONFIG.garden.baseTileWidth,
       baseTileHeight: DEFAULT_BALANCE_CONFIG.garden.baseTileHeight,
+      unlockXpCost: row.unlock_xp_cost,
       isUnlocked: row.is_unlocked === 1,
       isActiveView: row.is_active_view === 1
     };

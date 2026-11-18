@@ -69,6 +69,7 @@ const FALLBACK_GARDEN: GardenAreaDTO = {
   gridHeight: DEFAULT_BALANCE_CONFIG.garden.initialGridHeight,
   baseTileWidth: DEFAULT_BALANCE_CONFIG.garden.baseTileWidth,
   baseTileHeight: DEFAULT_BALANCE_CONFIG.garden.baseTileHeight,
+  unlockXpCost: 0,
   isUnlocked: true,
   isActiveView: true
 };

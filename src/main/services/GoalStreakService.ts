@@ -37,6 +37,82 @@ export class GoalStreakService {
   constructor(private readonly db: Database.Database) {}
 
   syncAndGetDailyGoals(localDate: string): DailyGoalItemDTO[] {
+    const focusAgg = this.db
+      .prepare(
+        `
+        SELECT
+          COALESCE(SUM(recorded_seconds), 0) AS total_seconds,
+          COUNT(*) AS sessions_count,
+          COALESCE(MAX(recorded_seconds), 0) AS max_single_seconds
+        FROM focus_sessions
+        WHERE phase = 'focus'
+          AND status IN ('completed', 'stopped')
+          AND local_date = ?
+      `
+      )
+      .get(localDate) as {
+      total_seconds: number;
+      sessions_count: number;
+      max_single_seconds: number;
+    };
+
+    const dailyRow = this.db
+      .prepare('SELECT completed_tasks_count FROM daily_activities WHERE local_date = ?')
+      .get(localDate) as { completed_tasks_count: number } | undefined;
+
+    return this.syncAndGetGoalPeriod('daily', localDate, {
+      focus_minutes: Math.floor(focusAgg.total_seconds / 60),
+      focus_sessions: focusAgg.sessions_count,
+      single_session_minutes: Math.floor(focusAgg.max_single_seconds / 60),
+      tasks_completed: dailyRow?.completed_tasks_count ?? 0
+    });
+  }
+
+  syncAndGetWeeklyGoals(localDate: string): DailyGoalItemDTO[] {
+    const { weekKey, startDate, endDate } = getWeekDateRange(localDate);
+
+    const focusAgg = this.db
+      .prepare(
+        `
+        SELECT
+          COALESCE(SUM(recorded_seconds), 0) AS total_seconds,
+          COUNT(*) AS sessions_count,
+          COALESCE(MAX(recorded_seconds), 0) AS max_single_seconds
+        FROM focus_sessions
+        WHERE phase = 'focus'
+          AND status IN ('completed', 'stopped')
+          AND local_date BETWEEN ? AND ?
+      `
+      )
+      .get(startDate, endDate) as {
+      total_seconds: number;
+      sessions_count: number;
+      max_single_seconds: number;
+    };
+
+    const tasksRow = this.db
+      .prepare(
+        `
+        SELECT COALESCE(SUM(completed_tasks_count), 0) AS total_tasks
+        FROM daily_activities
+        WHERE local_date BETWEEN ? AND ?
+      `
+      )
+      .get(startDate, endDate) as { total_tasks: number };
+
+    return this.syncAndGetGoalPeriod('weekly', weekKey, {
+      focus_minutes: Math.floor(focusAgg.total_seconds / 60),
+      focus_sessions: focusAgg.sessions_count,
+      single_session_minutes: Math.floor(focusAgg.max_single_seconds / 60),
+      tasks_completed: tasksRow.total_tasks
+    });
+  }
+
+  private syncAndGetGoalPeriod(
+    periodType: 'daily' | 'weekly',
+    periodKey: string,
+    metricValues: Record<GoalMetricType, number>
+  ): DailyGoalItemDTO[] {
     const nowIso = new Date().toISOString();
 
     const syncTx = this.db.transaction(() => {
@@ -45,54 +121,24 @@ export class GoalStreakService {
           `
           SELECT id, metric_type, title, target_value, reward_xp
           FROM goal_templates
-          WHERE period_type = 'daily' AND is_active = 1
+          WHERE period_type = ? AND is_active = 1
           ORDER BY id ASC
         `
         )
-        .all() as GoalTemplateRow[];
+        .all(periodType) as GoalTemplateRow[];
 
       const insertInstance = this.db.prepare(
         `
         INSERT OR IGNORE INTO goal_instances (
           id, template_id, period_type, period_key,
           target_value, current_value, is_completed, reward_claimed, completed_at
-        ) VALUES (?, ?, 'daily', ?, ?, 0, 0, 0, NULL)
+        ) VALUES (?, ?, ?, ?, ?, 0, 0, 0, NULL)
       `
       );
 
       for (const tpl of templates) {
-        insertInstance.run(randomUUID(), tpl.id, localDate, tpl.target_value);
+        insertInstance.run(randomUUID(), tpl.id, periodType, periodKey, tpl.target_value);
       }
-
-      const focusAgg = this.db
-        .prepare(
-          `
-          SELECT
-            COALESCE(SUM(recorded_seconds), 0) AS total_seconds,
-            COUNT(*) AS sessions_count,
-            COALESCE(MAX(recorded_seconds), 0) AS max_single_seconds
-          FROM focus_sessions
-          WHERE phase = 'focus'
-            AND status IN ('completed', 'stopped')
-            AND local_date = ?
-        `
-        )
-        .get(localDate) as {
-        total_seconds: number;
-        sessions_count: number;
-        max_single_seconds: number;
-      };
-
-      const dailyRow = this.db
-        .prepare('SELECT completed_tasks_count FROM daily_activities WHERE local_date = ?')
-        .get(localDate) as { completed_tasks_count: number } | undefined;
-
-      const metricValues: Record<GoalMetricType, number> = {
-        focus_minutes: Math.floor(focusAgg.total_seconds / 60),
-        focus_sessions: focusAgg.sessions_count,
-        single_session_minutes: Math.floor(focusAgg.max_single_seconds / 60),
-        tasks_completed: dailyRow?.completed_tasks_count ?? 0
-      };
 
       const instances = this.db
         .prepare(
@@ -111,11 +157,11 @@ export class GoalStreakService {
             gi.completed_at
           FROM goal_instances gi
           INNER JOIN goal_templates gt ON gt.id = gi.template_id
-          WHERE gi.period_type = 'daily' AND gi.period_key = ?
+          WHERE gi.period_type = ? AND gi.period_key = ?
           ORDER BY gt.id ASC
         `
         )
-        .all(localDate) as GoalInstanceRow[];
+        .all(periodType, periodKey) as GoalInstanceRow[];
 
       const updateInstance = this.db.prepare(
         `
@@ -159,11 +205,11 @@ export class GoalStreakService {
           gi.completed_at
         FROM goal_instances gi
         INNER JOIN goal_templates gt ON gt.id = gi.template_id
-        WHERE gi.period_type = 'daily' AND gi.period_key = ?
+        WHERE gi.period_type = ? AND gi.period_key = ?
         ORDER BY gt.id ASC
       `
       )
-      .all(localDate) as GoalInstanceRow[];
+      .all(periodType, periodKey) as GoalInstanceRow[];
 
     return rows.map(mapGoalRow);
   }
@@ -322,6 +368,24 @@ function mapGoalRow(row: GoalInstanceRow): DailyGoalItemDTO {
     rewardClaimed: row.reward_claimed === 1,
     rewardXp: row.reward_xp,
     completedAt: row.completed_at
+  };
+}
+
+export function getWeekDateRange(localDate: string): {
+  weekKey: string;
+  startDate: string;
+  endDate: string;
+} {
+  const [year, month, day] = localDate.split('-').map(Number);
+  const utc = new Date(Date.UTC(year, month - 1, day));
+  const dayOfWeek = utc.getUTCDay(); // 0 (Sun) .. 6 (Sat)
+  const diffToMonday = (dayOfWeek + 6) % 7;
+  const startDate = shiftLocalDateKey(localDate, -diffToMonday);
+  const endDate = shiftLocalDateKey(startDate, 6);
+  return {
+    weekKey: `week_${startDate}`,
+    startDate,
+    endDate
   };
 }
 

@@ -3,6 +3,7 @@ import { IPC_CHANNELS } from '@shared/constants/ipcChannels';
 import type { PurrfectAPI } from '@shared/types/api';
 import type {
   CreateTaskInput,
+  ExchangeItemInput,
   FocusCompletionResult,
   FocusSessionFilterInput,
   LinkSessionTaskInput,
@@ -29,10 +30,20 @@ const purrfectAPI: PurrfectAPI = {
   },
   progression: {
     getOverview: (localDate: string) =>
-      ipcRenderer.invoke(IPC_CHANNELS.PROGRESSION_GET_OVERVIEW, localDate)
+      ipcRenderer.invoke(IPC_CHANNELS.PROGRESSION_GET_OVERVIEW, localDate),
+    getCatalog: () => ipcRenderer.invoke(IPC_CHANNELS.PROGRESSION_GET_CATALOG),
+    exchangeItem: (input: ExchangeItemInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.PROGRESSION_EXCHANGE_ITEM, input),
+    listTransactions: (limit?: number) =>
+      ipcRenderer.invoke(IPC_CHANNELS.PROGRESSION_LIST_TRANSACTIONS, limit)
   },
   garden: {
     getActiveArea: () => ipcRenderer.invoke(IPC_CHANNELS.GARDEN_GET_ACTIVE_AREA),
+    listAreas: () => ipcRenderer.invoke(IPC_CHANNELS.GARDEN_LIST_AREAS),
+    unlockArea: (userGardenId: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.GARDEN_UNLOCK_AREA, userGardenId),
+    switchArea: (userGardenId: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.GARDEN_SWITCH_AREA, userGardenId),
     getState: (gardenId?: string) => ipcRenderer.invoke(IPC_CHANNELS.GARDEN_GET_STATE, gardenId),
     placeItem: (input: PlaceGardenItemInput) =>
       ipcRenderer.invoke(IPC_CHANNELS.GARDEN_PLACE_ITEM, input),
@@ -46,10 +57,17 @@ const purrfectAPI: PurrfectAPI = {
   goals: {
     getDailyGoals: (localDate: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.GOALS_GET_DAILY, localDate),
+    getWeeklyGoals: (localDate: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.GOALS_GET_WEEKLY, localDate),
     claimGoalReward: (goalInstanceId: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.GOALS_CLAIM_REWARD, goalInstanceId),
     getStreakOverview: (localDate: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.STREAK_GET_OVERVIEW, localDate)
+  },
+  achievements: {
+    list: () => ipcRenderer.invoke(IPC_CHANNELS.ACHIEVEMENTS_LIST),
+    claimReward: (achievementId: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.ACHIEVEMENTS_CLAIM_REWARD, achievementId)
   },
   music: {
     getPreferences: () => ipcRenderer.invoke(IPC_CHANNELS.MUSIC_GET_PREFERENCES),

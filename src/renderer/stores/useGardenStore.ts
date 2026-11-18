@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 import { DEFAULT_BALANCE_CONFIG } from '@shared/config/balanceConfig';
-import type { GardenStateDTO } from '@shared/types/domain';
+import type { GardenAreaDTO, GardenStateDTO } from '@shared/types/domain';
 import { sortPlacementsByDepth } from '@shared/utils/isometricMath';
+import { useAppStore } from './useAppStore';
 
 export type GardenInteractionMode = 'place' | 'move' | 'remove';
 
 interface GardenStoreState {
   gardenState: GardenStateDTO | null;
+  areas: GardenAreaDTO[];
   selectedItemId: string | null;
   selectedPlacementId: string | null;
   interactionMode: GardenInteractionMode;
@@ -19,6 +21,8 @@ interface GardenStoreState {
   setZoomLevel: (zoom: number) => void;
   interactWithTile: (tileX: number, tileY: number) => Promise<void>;
   clearGarden: () => Promise<void>;
+  switchArea: (userGardenId: string) => Promise<void>;
+  unlockArea: (userGardenId: string) => Promise<void>;
 }
 
 const FALLBACK_GARDEN_STATE: GardenStateDTO = {
@@ -33,6 +37,7 @@ const FALLBACK_GARDEN_STATE: GardenStateDTO = {
     gridHeight: DEFAULT_BALANCE_CONFIG.garden.initialGridHeight,
     baseTileWidth: DEFAULT_BALANCE_CONFIG.garden.baseTileWidth,
     baseTileHeight: DEFAULT_BALANCE_CONFIG.garden.baseTileHeight,
+    unlockXpCost: 0,
     isUnlocked: true,
     isActiveView: true
   },
@@ -76,6 +81,7 @@ const FALLBACK_GARDEN_STATE: GardenStateDTO = {
 
 export const useGardenStore = create<GardenStoreState>((set, get) => ({
   gardenState: null,
+  areas: [],
   selectedItemId: null,
   selectedPlacementId: null,
   interactionMode: 'place',
@@ -93,6 +99,7 @@ export const useGardenStore = create<GardenStoreState>((set, get) => ({
         null;
       set((s) => ({
         gardenState: current,
+        areas: [current.area],
         selectedItemId: s.selectedItemId ?? defaultItem,
         isLoadingGarden: false
       }));
@@ -101,7 +108,10 @@ export const useGardenStore = create<GardenStoreState>((set, get) => ({
 
     set({ isLoadingGarden: true, gardenError: null });
     try {
-      const gardenState = await api.garden.getState();
+      const [gardenState, areas] = await Promise.all([
+        api.garden.getState(),
+        api.garden.listAreas()
+      ]);
       const firstAvailable =
         gardenState.inventory.find((i) => i.availableQuantity > 0)?.itemId ??
         gardenState.inventory[0]?.itemId ??
@@ -114,6 +124,7 @@ export const useGardenStore = create<GardenStoreState>((set, get) => ({
       set({
         isLoadingGarden: false,
         gardenState,
+        areas,
         selectedItemId: stillExists ? currentSelected : firstAvailable
       });
     } catch (error) {
@@ -269,6 +280,44 @@ export const useGardenStore = create<GardenStoreState>((set, get) => ({
     } catch (error) {
       set({
         gardenError: error instanceof Error ? error.message : 'Unable to clear layout.'
+      });
+    }
+  },
+
+  switchArea: async (userGardenId) => {
+    const api = window.purrfectAPI;
+    if (!api) return;
+
+    set({ gardenError: null, selectedPlacementId: null });
+    try {
+      const [gardenState, areas] = await Promise.all([
+        api.garden.switchArea(userGardenId),
+        api.garden.listAreas()
+      ]);
+      set({ gardenState, areas });
+    } catch (error) {
+      set({
+        gardenError: error instanceof Error ? error.message : 'Unable to switch garden area.'
+      });
+    }
+  },
+
+  unlockArea: async (userGardenId) => {
+    const api = window.purrfectAPI;
+    if (!api) return;
+
+    set({ gardenError: null });
+    try {
+      await api.garden.unlockArea(userGardenId);
+      const [gardenState, areas] = await Promise.all([
+        api.garden.switchArea(userGardenId),
+        api.garden.listAreas()
+      ]);
+      set({ gardenState, areas, selectedPlacementId: null });
+      await useAppStore.getState().refreshProgression();
+    } catch (error) {
+      set({
+        gardenError: error instanceof Error ? error.message : 'Unable to unlock garden area.'
       });
     }
   }
