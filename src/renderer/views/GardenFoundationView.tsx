@@ -1,16 +1,25 @@
 import { Clock, Flower2, Grid, ZoomIn } from 'lucide-react';
 import { DEFAULT_BALANCE_CONFIG } from '@shared/config/balanceConfig';
+import { TimerControls } from '../components/timer/TimerControls';
 import { useAppStore } from '../stores/useAppStore';
+import { useTimerStore } from '../stores/useTimerStore';
+import { formatTimerClock, getDisplaySeconds, getPhaseDisplayLabel } from '../utils/formatTime';
 
 export function GardenFoundationView() {
   const activeGarden = useAppStore((s) => s.activeGarden);
-  const timerPreferences = useAppStore((s) => s.timerPreferences);
+  const timerState = useTimerStore((s) => s.timerState);
 
   const gridWidth = activeGarden?.gridWidth ?? DEFAULT_BALANCE_CONFIG.garden.initialGridWidth;
   const gridHeight = activeGarden?.gridHeight ?? DEFAULT_BALANCE_CONFIG.garden.initialGridHeight;
   const tileW = activeGarden?.baseTileWidth ?? DEFAULT_BALANCE_CONFIG.garden.baseTileWidth;
   const tileH = activeGarden?.baseTileHeight ?? DEFAULT_BALANCE_CONFIG.garden.baseTileHeight;
-  const workMinutes = timerPreferences?.pomodoroWorkMinutes ?? 25;
+
+  const displaySeconds = getDisplaySeconds(
+    timerState.mode,
+    timerState.elapsedSeconds,
+    timerState.remainingSeconds
+  );
+  const phaseLabel = getPhaseDisplayLabel(timerState.mode, timerState.phase);
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -65,21 +74,33 @@ export function GardenFoundationView() {
               </span>
               <Clock className="h-4 w-4 text-cozy-sage-dark" />
             </div>
-            <div className="mt-5 rounded-2xl border border-cozy-border bg-cozy-cream py-6 text-center">
-              <p className="text-xs font-semibold text-cozy-sage-dark">Pomodoro · Focus</p>
+
+            <div className="mt-5 rounded-2xl border border-cozy-border bg-cozy-cream px-3 py-6 text-center">
+              <p className="text-xs font-semibold text-cozy-sage-dark">{phaseLabel}</p>
               <p className="mt-1 font-mono text-4xl font-bold text-cozy-ink">
-                {String(workMinutes).padStart(2, '0')}:00
+                {formatTimerClock(displaySeconds)}
               </p>
+              {timerState.pendingRecovery && timerState.status === 'paused' && (
+                <span className="mt-2 inline-block rounded-full bg-cozy-amber/40 px-2.5 py-0.5 text-[10px] font-bold text-cozy-wood">
+                  Restored Paused
+                </span>
+              )}
+              {timerState.status !== 'idle' && !timerState.pendingRecovery && (
+                <p className="mt-1 text-[11px] capitalize text-cozy-muted">
+                  {timerState.status} · {formatTimerClock(timerState.elapsedSeconds)} elapsed
+                </p>
+              )}
             </div>
+
             <p className="mt-3 text-xs text-cozy-muted">
-              Per PRD Section 4.7, the focus timer stays docked on the right so you can start,
-              pause, or stop sessions without leaving your garden.
+              Per PRD Section 4.7, you can start, pause, resume, or finish sessions directly
+              from Garden view.
             </p>
           </div>
 
-          <button type="button" disabled className="cozy-btn-primary mt-4 w-full">
-            Timer Ready in M1.2
-          </button>
+          <div className="mt-4">
+            <TimerControls compact />
+          </div>
         </aside>
       </div>
     </div>

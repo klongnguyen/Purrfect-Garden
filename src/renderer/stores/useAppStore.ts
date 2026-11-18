@@ -28,6 +28,7 @@ interface AppState {
   activeGarden: GardenAreaDTO | null;
   setActiveSection: (section: NavigationSectionId) => void;
   initializeApp: () => Promise<void>;
+  refreshProgression: () => Promise<void>;
   updateTimerPreferences: (input: UpdateTimerPreferencesInput) => Promise<boolean>;
 }
 
@@ -132,6 +133,17 @@ export const useAppStore = create<AppState>((set, get) => ({
         errorMessage:
           error instanceof Error ? error.message : 'Failed to initialize Purrfect Garden.'
       });
+    }
+  },
+
+  refreshProgression: async () => {
+    const api = window.purrfectAPI;
+    if (!api) return;
+    try {
+      const progression = await api.progression.getOverview(getLocalDateKey());
+      set({ progression });
+    } catch {
+      // Non-fatal background refresh error
     }
   },
 

@@ -13,6 +13,57 @@ export type NavigationSectionId =
   | 'settings';
 
 export type TimerMode = 'pomodoro' | 'stopwatch' | 'custom';
+export type TimerPhase = 'focus' | 'short_break' | 'long_break';
+export type TimerStatus = 'idle' | 'running' | 'paused';
+export type FocusSessionStatus = 'active' | 'paused' | 'completed' | 'stopped' | 'interrupted';
+
+export interface TimerStateSnapshot {
+  sessionId: string | null;
+  mode: TimerMode;
+  phase: TimerPhase;
+  status: TimerStatus;
+  targetDurationSeconds: number | null;
+  elapsedSeconds: number;
+  remainingSeconds: number | null;
+  pomodoroCycleCount: number;
+  linkedTaskId: string | null;
+  startedAtIso: string | null;
+  pendingRecovery: boolean;
+}
+
+export interface StartTimerInput {
+  mode?: TimerMode;
+  customDurationMinutes?: number;
+  taskId?: string | null;
+}
+
+export interface SetTimerModeInput {
+  mode: TimerMode;
+  customDurationMinutes?: number;
+}
+
+export interface FocusSessionDTO {
+  id: string;
+  mode: TimerMode;
+  phase: TimerPhase;
+  status: FocusSessionStatus;
+  targetSeconds: number | null;
+  recordedSeconds: number;
+  taskId: string | null;
+  localDate: string;
+  startedAt: string;
+  endedAt: string | null;
+  xpAwarded: number;
+}
+
+export interface FocusCompletionResult {
+  session: FocusSessionDTO | null;
+  xpEarned: number;
+  newXpBalance: number;
+  todayFocusSeconds: number;
+  currentStreak: number;
+  nextTimerState: TimerStateSnapshot;
+}
 
 export interface TimerPreferencesDTO {
   defaultMode: TimerMode;

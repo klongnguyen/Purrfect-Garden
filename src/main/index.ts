@@ -1,13 +1,22 @@
 import path from 'path';
 import { app, BrowserWindow, powerMonitor } from 'electron';
 import type Database from 'better-sqlite3';
+import { IPC_CHANNELS } from '@shared/constants/ipcChannels';
 import { createDatabaseConnection } from './database/connection';
 import { runMigrations } from './database/migrator';
 import { FoundationService } from './services/FoundationService';
+import { TimerSupervisor } from './services/TimerSupervisor';
 import { registerIpcHandlers } from './ipc/registerIpcHandlers';
 
 let mainWindow: BrowserWindow | null = null;
 let database: Database.Database | null = null;
+let timerSupervisor: TimerSupervisor | null = null;
+
+function broadcastToRenderer(channel: string, payload: unknown): void {
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send(channel, payload);
+  }
+}
 
 function createMainWindow(): BrowserWindow {
   const window = new BrowserWindow({
@@ -31,6 +40,11 @@ function createMainWindow(): BrowserWindow {
   } else {
     void window.loadFile(path.join(__dirname, '../renderer/index.html'));
   }
+
+  window.on('close', () => {
+    timerSupervisor?.pause('app_exit');
+    checkpointDatabase();
+  });
 
   window.on('closed', () => {
     mainWindow = null;
@@ -64,12 +78,18 @@ app.whenReady().then(() => {
   runMigrations(database);
 
   const foundationService = new FoundationService(database, dbPath);
-  registerIpcHandlers(foundationService);
+  timerSupervisor = new TimerSupervisor(database, {
+    onTick: (snapshot) => broadcastToRenderer(IPC_CHANNELS.TIMER_TICK_EVENT, snapshot),
+    onCompleted: (result) =>
+      broadcastToRenderer(IPC_CHANNELS.TIMER_COMPLETED_EVENT, result)
+  });
+
+  registerIpcHandlers(foundationService, timerSupervisor);
 
   mainWindow = createMainWindow();
 
   powerMonitor.on('suspend', () => {
-    // M1.2 TimerSupervisor will synchronously pause active sessions here before checkpointing
+    timerSupervisor?.pause('system_suspend');
     checkpointDatabase();
   });
 
@@ -83,7 +103,9 @@ app.whenReady().then(() => {
 });
 
 app.on('before-quit', () => {
-  // M1.2 TimerSupervisor will synchronously pause active sessions here before closing SQLite
+  timerSupervisor?.pause('app_exit');
+  timerSupervisor?.dispose();
+  timerSupervisor = null;
   closeDatabaseSafely();
 });
 

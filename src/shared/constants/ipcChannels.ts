@@ -3,7 +3,17 @@ export const IPC_CHANNELS = Object.freeze({
   SETTINGS_GET_ALL: 'settings:get-all',
   SETTINGS_UPDATE_TIMER: 'settings:update-timer',
   PROGRESSION_GET_OVERVIEW: 'progression:get-overview',
-  GARDEN_GET_ACTIVE_AREA: 'garden:get-active-area'
+  GARDEN_GET_ACTIVE_AREA: 'garden:get-active-area',
+  TIMER_GET_STATE: 'timer:get-state',
+  TIMER_START: 'timer:start',
+  TIMER_PAUSE: 'timer:pause',
+  TIMER_RESUME: 'timer:resume',
+  TIMER_STOP: 'timer:stop',
+  TIMER_RESET: 'timer:reset',
+  TIMER_SKIP_PHASE: 'timer:skip-phase',
+  TIMER_SET_MODE: 'timer:set-mode',
+  TIMER_TICK_EVENT: 'timer:tick-event',
+  TIMER_COMPLETED_EVENT: 'timer:completed-event'
 } as const);
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];
