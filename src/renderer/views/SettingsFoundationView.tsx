@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { CheckCircle2, Database, Save, Settings } from 'lucide-react';
 import type { TimerMode } from '@shared/types/domain';
 import { useAppStore } from '../stores/useAppStore';
+import { PixelIcon } from '../components/ui/PixelIcon';
 
 export function SettingsFoundationView() {
   const timerPreferences = useAppStore((s) => s.timerPreferences);
@@ -58,8 +58,8 @@ export function SettingsFoundationView() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <header>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-cozy-meadow px-3 py-1 text-xs font-semibold text-cozy-sage-dark">
-          <Settings className="h-3.5 w-3.5" />
+        <span className="pixel-pill">
+          <PixelIcon name="settings" size={14} />
           Application &amp; Timer Settings
         </span>
         <h2 className="mt-2 text-2xl font-bold text-cozy-wood">
@@ -192,13 +192,13 @@ export function SettingsFoundationView() {
           <div className="text-xs text-cozy-sage-dark">
             {saveBanner && (
               <span className="inline-flex items-center gap-1.5 font-semibold">
-                <CheckCircle2 className="h-4 w-4" />
+                <PixelIcon name="check" size={14} />
                 {saveBanner}
               </span>
             )}
           </div>
           <button type="submit" disabled={isSavingSettings} className="cozy-btn-primary">
-            <Save className="h-4 w-4" />
+            <PixelIcon name="save" size={14} />
             {isSavingSettings ? 'Saving...' : 'Save Preferences'}
           </button>
         </div>
@@ -207,7 +207,7 @@ export function SettingsFoundationView() {
       {/* Local Database Status Card */}
       <section className="cozy-card p-5">
         <div className="flex items-center gap-2 text-sm font-bold text-cozy-wood">
-          <Database className="h-4 w-4 text-cozy-sage-dark" />
+          <PixelIcon name="database" size={16} className="text-cozy-sage-dark" />
           <span>Local-First Persistence Diagnostics</span>
         </div>
         <div className="mt-3 grid gap-3 text-xs sm:grid-cols-4">

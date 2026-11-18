@@ -25,8 +25,8 @@ interface GardenStoreState {
   unlockArea: (userGardenId: string) => Promise<void>;
 }
 
-const FALLBACK_GARDEN_STATE: GardenStateDTO = {
-  area: {
+const FALLBACK_AREAS: GardenAreaDTO[] = [
+  {
     userGardenId: 'user_garden_starter',
     areaDefinitionId: 'meadow_starter',
     name: 'Sunlit Meadow',
@@ -41,42 +41,185 @@ const FALLBACK_GARDEN_STATE: GardenStateDTO = {
     isUnlocked: true,
     isActiveView: true
   },
-  placements: [],
-  inventory: [
+  {
+    userGardenId: 'user_garden_autumn',
+    areaDefinitionId: 'autumn_grove',
+    name: 'Autumn Grove',
+    customName: 'Amber Harvest Yard',
+    theme: 'autumn_grove',
+    description: 'Warm amber fields framed by maple foliage and harvest pumpkin beds.',
+    gridWidth: 14,
+    gridHeight: 14,
+    baseTileWidth: DEFAULT_BALANCE_CONFIG.garden.baseTileWidth,
+    baseTileHeight: DEFAULT_BALANCE_CONFIG.garden.baseTileHeight,
+    unlockXpCost: 120,
+    isUnlocked: false,
+    isActiveView: false
+  },
+  {
+    userGardenId: 'user_garden_winter',
+    areaDefinitionId: 'winter_sanctuary',
+    name: 'Winter Sanctuary',
+    customName: 'Frosty Log Cabin',
+    theme: 'winter_sanctuary',
+    description: 'Snow-dusted pines beside a warm glowing winter study cabin.',
+    gridWidth: 14,
+    gridHeight: 14,
+    baseTileWidth: DEFAULT_BALANCE_CONFIG.garden.baseTileWidth,
+    baseTileHeight: DEFAULT_BALANCE_CONFIG.garden.baseTileHeight,
+    unlockXpCost: 180,
+    isUnlocked: false,
+    isActiveView: false
+  },
+  {
+    userGardenId: 'user_garden_starlight',
+    areaDefinitionId: 'starlight_conservatory',
+    name: 'Starlight Conservatory',
+    customName: 'Bioluminescent Grove',
+    theme: 'magical_garden',
+    description: 'Glowing starlight mushrooms illuminating late-night study sessions.',
+    gridWidth: 16,
+    gridHeight: 16,
+    baseTileWidth: DEFAULT_BALANCE_CONFIG.garden.baseTileWidth,
+    baseTileHeight: DEFAULT_BALANCE_CONFIG.garden.baseTileHeight,
+    unlockXpCost: 260,
+    isUnlocked: false,
+    isActiveView: false
+  }
+];
+
+const FALLBACK_INVENTORY: GardenStateDTO['inventory'] = [
+  {
+    itemId: 'item_pruning_shears',
+    name: 'Pruning Shears',
+    category: 'tool',
+    description: 'Handy garden shears for tending tidy beds.',
+    rarity: 'common',
+    spriteKey: 'pruning_shears',
+    ownedQuantity: 1,
+    placedCount: 0,
+    availableQuantity: 1
+  },
+  {
+    itemId: 'item_watering_can',
+    name: 'Flower Watering Can',
+    category: 'tool',
+    description: 'Periwinkle watering can painted with a daisy blossom.',
+    rarity: 'common',
+    spriteKey: 'watering_can',
+    ownedQuantity: 1,
+    placedCount: 0,
+    availableQuantity: 1
+  },
+  {
+    itemId: 'item_sunflower_seed',
+    name: 'Sunflower Seed Bag',
+    category: 'seed',
+    description: 'Plump burlap pouch filled with golden sunflower seeds.',
+    rarity: 'common',
+    spriteKey: 'sunflower_seed',
+    ownedQuantity: 7,
+    placedCount: 0,
+    availableQuantity: 7
+  },
+  {
+    itemId: 'item_sprout_pot',
+    name: 'Terracotta Sprout',
+    category: 'plant',
+    description: 'A cheerful little sprout in a warm clay pot.',
+    rarity: 'common',
+    spriteKey: 'sprout_pot',
+    ownedQuantity: 4,
+    placedCount: 1,
+    availableQuantity: 3
+  },
+  {
+    itemId: 'item_sunlit_daisy',
+    name: 'Sunlit Daisy',
+    category: 'plant',
+    description: 'Bright white petals that love morning focus sessions.',
+    rarity: 'common',
+    spriteKey: 'sunlit_daisy',
+    ownedQuantity: 3,
+    placedCount: 1,
+    availableQuantity: 2
+  },
+  {
+    itemId: 'item_lavender_bush',
+    name: 'Lavender Bush',
+    category: 'plant',
+    description: 'Fragrant violet lavender spikes for calm afternoons.',
+    rarity: 'uncommon',
+    spriteKey: 'lavender_bush',
+    ownedQuantity: 2,
+    placedCount: 0,
+    availableQuantity: 2
+  },
+  {
+    itemId: 'item_wooden_lantern',
+    name: 'Wooden Lantern',
+    category: 'decor',
+    description: 'Warm amber study lantern guiding dusk focus blocks.',
+    rarity: 'common',
+    spriteKey: 'wooden_lantern',
+    ownedQuantity: 2,
+    placedCount: 1,
+    availableQuantity: 1
+  },
+  {
+    itemId: 'item_cherry_bonsai',
+    name: 'Cherry Blossom Bonsai',
+    category: 'plant',
+    description: 'Miniature blooming sakura tree in a ceramic glaze dish.',
+    rarity: 'rare',
+    spriteKey: 'cherry_bonsai',
+    ownedQuantity: 1,
+    placedCount: 0,
+    availableQuantity: 1
+  }
+];
+
+const FALLBACK_GARDEN_STATE: GardenStateDTO = {
+  area: FALLBACK_AREAS[0],
+  placements: [
     {
-      itemId: 'item_sprout_pot',
-      name: 'Terracotta Sprout',
-      category: 'plant',
-      description: 'A cheerful little sprout in a warm clay pot.',
-      rarity: 'common',
-      spriteKey: 'sprout_pot',
-      ownedQuantity: 3,
-      placedCount: 0,
-      availableQuantity: 3
-    },
-    {
+      id: 'preview-place-1',
+      gardenId: 'user_garden_starter',
       itemId: 'item_sunlit_daisy',
-      name: 'Sunlit Daisy',
+      itemName: 'Sunlit Daisy',
       category: 'plant',
-      description: 'Bright white petals that love morning focus sessions.',
-      rarity: 'common',
       spriteKey: 'sunlit_daisy',
-      ownedQuantity: 2,
-      placedCount: 0,
-      availableQuantity: 2
+      tileX: 3,
+      tileY: 4,
+      rotation: 0,
+      placedAt: '2026-11-18T00:00:00.000Z'
     },
     {
-      itemId: 'item_stepping_stone',
-      name: 'Mossy Stepping Stone',
+      id: 'preview-place-2',
+      gardenId: 'user_garden_starter',
+      itemId: 'item_sprout_pot',
+      itemName: 'Terracotta Sprout',
+      category: 'plant',
+      spriteKey: 'sprout_pot',
+      tileX: 5,
+      tileY: 4,
+      rotation: 0,
+      placedAt: '2026-11-18T00:00:00.000Z'
+    },
+    {
+      id: 'preview-place-3',
+      gardenId: 'user_garden_starter',
+      itemId: 'item_wooden_lantern',
+      itemName: 'Wooden Lantern',
       category: 'decor',
-      description: 'Flat garden stone edged with soft green moss.',
-      rarity: 'common',
-      spriteKey: 'stepping_stone',
-      ownedQuantity: 4,
-      placedCount: 0,
-      availableQuantity: 4
+      spriteKey: 'wooden_lantern',
+      tileX: 6,
+      tileY: 2,
+      rotation: 0,
+      placedAt: '2026-11-18T00:00:00.000Z'
     }
-  ]
+  ],
+  inventory: FALLBACK_INVENTORY
 };
 
 export const useGardenStore = create<GardenStoreState>((set, get) => ({
@@ -93,13 +236,14 @@ export const useGardenStore = create<GardenStoreState>((set, get) => ({
     const api = window.purrfectAPI;
     if (!api) {
       const current = get().gardenState ?? FALLBACK_GARDEN_STATE;
+      const existingAreas = get().areas;
       const defaultItem =
         current.inventory.find((i) => i.availableQuantity > 0)?.itemId ??
         current.inventory[0]?.itemId ??
         null;
       set((s) => ({
         gardenState: current,
-        areas: [current.area],
+        areas: existingAreas.length > 0 ? existingAreas : FALLBACK_AREAS,
         selectedItemId: s.selectedItemId ?? defaultItem,
         isLoadingGarden: false
       }));
@@ -286,7 +430,24 @@ export const useGardenStore = create<GardenStoreState>((set, get) => ({
 
   switchArea: async (userGardenId) => {
     const api = window.purrfectAPI;
-    if (!api) return;
+    if (!api) {
+      const current = get().gardenState ?? FALLBACK_GARDEN_STATE;
+      const targetArea = get().areas.find((a) => a.userGardenId === userGardenId);
+      if (!targetArea || !targetArea.isUnlocked) return;
+      const nextAreas = get().areas.map((a) => ({
+        ...a,
+        isActiveView: a.userGardenId === userGardenId
+      }));
+      set({
+        areas: nextAreas,
+        selectedPlacementId: null,
+        gardenState: {
+          ...current,
+          area: { ...targetArea, isActiveView: true }
+        }
+      });
+      return;
+    }
 
     set({ gardenError: null, selectedPlacementId: null });
     try {
@@ -304,7 +465,30 @@ export const useGardenStore = create<GardenStoreState>((set, get) => ({
 
   unlockArea: async (userGardenId) => {
     const api = window.purrfectAPI;
-    if (!api) return;
+    if (!api) {
+      const targetArea = get().areas.find((a) => a.userGardenId === userGardenId);
+      if (!targetArea) return;
+      const unlockedTarget: GardenAreaDTO = {
+        ...targetArea,
+        isUnlocked: true,
+        isActiveView: true
+      };
+      const nextAreas = get().areas.map((a) =>
+        a.userGardenId === userGardenId
+          ? unlockedTarget
+          : { ...a, isActiveView: false }
+      );
+      const current = get().gardenState ?? FALLBACK_GARDEN_STATE;
+      set({
+        areas: nextAreas,
+        selectedPlacementId: null,
+        gardenState: {
+          ...current,
+          area: unlockedTarget
+        }
+      });
+      return;
+    }
 
     set({ gardenError: null });
     try {

@@ -1,18 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import {
-  Calendar,
-  CheckSquare,
-  Clock,
-  Pencil,
-  Play,
-  Plus,
-  Trash2,
-  X
-} from 'lucide-react';
 import type { TaskDTO, TaskPriority, TaskViewFilter } from '@shared/types/domain';
 import { getLocalDateKey, useAppStore } from '../stores/useAppStore';
 import { useTaskStore } from '../stores/useTaskStore';
 import { formatDurationHuman } from '../utils/formatTime';
+import { PixelIcon } from '../components/ui/PixelIcon';
 
 const FILTER_TABS: ReadonlyArray<{ id: TaskViewFilter; label: string }> = [
   { id: 'today', label: 'Today' },
@@ -114,8 +105,8 @@ export function TasksView() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <header>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-cozy-meadow px-3 py-1 text-xs font-semibold text-cozy-sage-dark">
-          <CheckSquare className="h-3.5 w-3.5" />
+        <span className="pixel-pill">
+          <PixelIcon name="tasks" size={14} />
           Daily Task Management
         </span>
         <h2 className="mt-2 text-2xl font-bold text-cozy-wood">
@@ -178,9 +169,9 @@ export function TasksView() {
             <button
               type="button"
               onClick={resetForm}
-              className="inline-flex items-center gap-1 text-xs font-medium text-cozy-muted hover:text-cozy-wood"
+              className="inline-flex items-center gap-1 text-xs font-bold text-cozy-muted hover:text-cozy-wood"
             >
-              <X className="h-3.5 w-3.5" />
+              <PixelIcon name="close" size={14} />
               Cancel Edit
             </button>
           )}
@@ -262,7 +253,7 @@ export function TasksView() {
 
         <div className="flex justify-end">
           <button type="submit" className="cozy-btn-primary">
-            <Plus className="h-4 w-4" />
+            <PixelIcon name="plus" size={14} />
             <span>{editingTaskId ? 'Save Task Changes' : 'Add Task'}</span>
           </button>
         </div>
@@ -354,14 +345,14 @@ export function TasksView() {
                               isOverdue ? 'font-bold text-cozy-peach' : ''
                             }`}
                           >
-                            <Calendar className="h-3 w-3" />
+                            <PixelIcon name="calendar" size={12} />
                             Due: {task.deadlineAt}
                             {isOverdue ? ' (Overdue)' : ''}
                           </span>
                         )}
                         {task.estimatedMinutes !== null && (
                           <span className="inline-flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
+                            <PixelIcon name="timer" size={12} />
                             Est: {task.estimatedMinutes}m
                           </span>
                         )}
@@ -379,9 +370,9 @@ export function TasksView() {
                       <button
                         type="button"
                         onClick={() => handleFocusOnTask(task.id)}
-                        className="inline-flex items-center gap-1 rounded-lg bg-cozy-meadow px-2.5 py-1.5 text-xs font-semibold text-cozy-sage-dark hover:bg-cozy-sage hover:text-white"
+                        className="cozy-btn-primary px-2.5 py-1 text-xs"
                       >
-                        <Play className="h-3 w-3" />
+                        <PixelIcon name="play" size={12} />
                         Focus
                       </button>
                     )}
@@ -389,10 +380,10 @@ export function TasksView() {
                     <button
                       type="button"
                       onClick={() => handleStartEdit(task)}
-                      className="rounded-lg border border-cozy-border bg-white p-1.5 text-cozy-wood hover:bg-cozy-panel"
+                      className="border-2 border-[#3D2112] bg-[#FAF0DC] p-1.5 text-cozy-wood shadow-pixel-sm hover:bg-cozy-panel"
                       aria-label={`Edit ${task.title}`}
                     >
-                      <Pencil className="h-3.5 w-3.5" />
+                      <PixelIcon name="pencil" size={14} />
                     </button>
 
                     {confirmDeleteId === task.id ? (
@@ -402,7 +393,7 @@ export function TasksView() {
                           setConfirmDeleteId(null);
                           void deleteTask(task.id);
                         }}
-                        className="rounded-lg bg-cozy-peach px-2.5 py-1 text-xs font-semibold text-white"
+                        className="border-2 border-[#3D2112] bg-[#D95B34] px-2.5 py-1 text-xs font-bold text-white shadow-pixel-sm"
                       >
                         Confirm?
                       </button>
@@ -410,10 +401,10 @@ export function TasksView() {
                       <button
                         type="button"
                         onClick={() => setConfirmDeleteId(task.id)}
-                        className="rounded-lg border border-cozy-border bg-white p-1.5 text-cozy-peach hover:bg-cozy-peach/10"
+                        className="border-2 border-[#3D2112] bg-[#FAF0DC] p-1.5 text-[#D95B34] shadow-pixel-sm hover:bg-[#F5D0C5]"
                         aria-label={`Delete ${task.title}`}
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <PixelIcon name="trash" size={14} />
                       </button>
                     )}
                   </div>

@@ -1,6 +1,6 @@
-import { Heart, Music, Pause, Play, Shuffle, Sliders, Volume2 } from 'lucide-react';
 import { AMBIENT_LAYERS, COZY_TRACK_CATALOG } from '../services/audioEngine';
 import { useMusicStore } from '../stores/useMusicStore';
+import { PixelIcon } from '../components/ui/PixelIcon';
 
 export function MusicView() {
   const isPlaying = useMusicStore((s) => s.isPlaying);
@@ -18,8 +18,8 @@ export function MusicView() {
     <div className="mx-auto max-w-5xl space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-cozy-meadow px-3 py-1 text-xs font-semibold text-cozy-sage-dark">
-            <Music className="h-3.5 w-3.5" />
+          <span className="pixel-pill">
+            <PixelIcon name="music" size={14} />
             Study Soundscapes &amp; Ambient Mixer
           </span>
           <h2 className="mt-2 text-2xl font-bold text-cozy-wood">
@@ -28,13 +28,13 @@ export function MusicView() {
         </div>
 
         <button type="button" onClick={togglePlay} className="cozy-btn-primary">
-          {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          <PixelIcon name={isPlaying ? 'pause' : 'play'} size={14} />
           <span>{isPlaying ? 'Pause Music' : 'Play Music'}</span>
         </button>
       </header>
 
       {musicError && (
-        <div className="rounded-xl border border-cozy-peach/40 bg-cozy-peach/10 px-4 py-2.5 text-xs font-medium text-cozy-peach">
+        <div className="border-2 border-[#3D2112] bg-[#F5B7A3] px-4 py-2.5 text-xs font-bold text-[#24140B]">
           {musicError}
         </div>
       )}
@@ -47,13 +47,9 @@ export function MusicView() {
             <button
               type="button"
               onClick={() => void toggleShuffle()}
-              className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold transition ${
-                preferences.shuffleEnabled
-                  ? 'border-cozy-sage bg-cozy-meadow text-cozy-sage-dark'
-                  : 'border-cozy-border bg-cozy-cream text-cozy-muted'
-              }`}
+              className={preferences.shuffleEnabled ? 'cozy-btn-primary py-1' : 'cozy-btn-secondary py-1'}
             >
-              <Shuffle className="h-3.5 w-3.5" />
+              <PixelIcon name="shuffle" size={14} />
               <span>Shuffle {preferences.shuffleEnabled ? 'On' : 'Off'}</span>
             </button>
           </div>
@@ -77,17 +73,13 @@ export function MusicView() {
                     className="flex flex-1 items-center gap-3 text-left"
                   >
                     <span
-                      className={`flex h-7 w-7 items-center justify-center rounded-lg ${
+                      className={`flex h-7 w-7 items-center justify-center border border-[#3D2112] ${
                         isSelected && isPlaying
                           ? 'bg-cozy-sage text-white'
                           : 'bg-white text-cozy-sage-dark'
                       }`}
                     >
-                      {isSelected && isPlaying ? (
-                        <Pause className="h-3.5 w-3.5" />
-                      ) : (
-                        <Play className="h-3.5 w-3.5" />
-                      )}
+                      <PixelIcon name={isSelected && isPlaying ? 'pause' : 'play'} size={14} />
                     </span>
                     <div>
                       <p className="text-xs font-bold text-cozy-wood">{track.title}</p>
@@ -99,21 +91,21 @@ export function MusicView() {
                     type="button"
                     onClick={() => void toggleFavorite(track.id)}
                     aria-label={`Favorite ${track.title}`}
-                    className={`rounded-lg p-1.5 transition ${
-                      isFav ? 'text-cozy-peach' : 'text-cozy-muted hover:text-cozy-peach'
+                    className={`p-1.5 transition ${
+                      isFav ? 'text-[#D95B34]' : 'text-cozy-muted hover:text-[#D95B34]'
                     }`}
                   >
-                    <Heart className={`h-4 w-4 ${isFav ? 'fill-current' : ''}`} />
+                    <PixelIcon name="heart" size={14} />
                   </button>
                 </div>
               );
             })}
           </div>
 
-          <div className="space-y-3 border-t border-cozy-border/70 pt-4 text-xs">
+          <div className="space-y-3 border-t-2 border-cozy-border/50 pt-4 text-xs">
             <label className="flex items-center justify-between gap-3 font-semibold text-cozy-wood">
               <span className="inline-flex items-center gap-1.5">
-                <Volume2 className="h-4 w-4 text-cozy-sage-dark" />
+                <PixelIcon name="volume" size={14} className="text-cozy-sage-dark" />
                 Master Volume
               </span>
               <div className="flex items-center gap-2">
@@ -123,7 +115,7 @@ export function MusicView() {
                   max={100}
                   value={Math.round(preferences.masterVolume * 100)}
                   onChange={(e) => void setMasterVolume(Number(e.target.value) / 100)}
-                  className="h-1.5 w-28 cursor-pointer accent-cozy-sage"
+                  className="w-28"
                 />
                 <span className="w-9 text-right font-mono">
                   {Math.round(preferences.masterVolume * 100)}%
@@ -146,7 +138,7 @@ export function MusicView() {
         {/* 4-Channel Ambient Soundscape Mixer */}
         <section className="cozy-card space-y-4 p-6">
           <div className="flex items-center gap-2">
-            <Sliders className="h-4 w-4 text-cozy-sage-dark" />
+            <PixelIcon name="settings" size={16} className="text-cozy-sage-dark" />
             <h3 className="text-sm font-bold text-cozy-wood">
               Ambient Soundscape Mixer
             </h3>

@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { BarChart3, Calendar, Clock, Flame, History, RefreshCw } from 'lucide-react';
 import type { HeatmapIntensityLevel } from '@shared/types/domain';
 import { useStatsStore } from '../stores/useStatsStore';
 import { useTaskStore } from '../stores/useTaskStore';
 import { formatDurationHuman, formatTimerClock } from '../utils/formatTime';
+import { PixelIcon } from '../components/ui/PixelIcon';
 
 const HEATMAP_COLOR_CLASSES: Record<HeatmapIntensityLevel, string> = {
   0: 'bg-cozy-panel border-cozy-border/70',
@@ -40,8 +40,8 @@ export function StatisticsView() {
     <div className="mx-auto max-w-5xl space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-cozy-meadow px-3 py-1 text-xs font-semibold text-cozy-sage-dark">
-            <BarChart3 className="h-3.5 w-3.5" />
+          <span className="pixel-pill">
+            <PixelIcon name="statistics" size={14} />
             Focus History &amp; Analytics
           </span>
           <h2 className="mt-2 text-2xl font-bold text-cozy-wood">
@@ -55,7 +55,7 @@ export function StatisticsView() {
           disabled={isLoadingStats}
           className="cozy-btn-secondary"
         >
-          <RefreshCw className={`h-4 w-4 ${isLoadingStats ? 'animate-spin' : ''}`} />
+          <PixelIcon name="refresh" size={14} className={isLoadingStats ? 'animate-spin' : ''} />
           <span>Refresh</span>
         </button>
       </header>
@@ -129,7 +129,7 @@ export function StatisticsView() {
               {formatDurationHuman(summary?.longestSessionSeconds ?? 0)}
             </p>
           </div>
-          <Clock className="h-6 w-6 text-cozy-sage-dark" />
+          <PixelIcon name="timer" size={24} className="text-cozy-sage-dark" />
         </div>
 
         <div className="cozy-card flex items-center justify-between p-5">
@@ -142,7 +142,7 @@ export function StatisticsView() {
               days
             </p>
           </div>
-          <Flame className="h-6 w-6 text-cozy-peach" />
+          <PixelIcon name="flame" size={24} className="text-[#D95B34]" />
         </div>
       </section>
 
@@ -222,7 +222,7 @@ export function StatisticsView() {
       <section className="cozy-card p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-cozy-sage-dark" />
+            <PixelIcon name="calendar" size={16} className="text-cozy-sage-dark" />
             <h3 className="text-sm font-bold text-cozy-wood">
               12-Week Activity Calendar (84 Days)
             </h3>
@@ -232,7 +232,7 @@ export function StatisticsView() {
             {([0, 1, 2, 3, 4] as const).map((level) => (
               <span
                 key={level}
-                className={`h-3 w-3 rounded border ${HEATMAP_COLOR_CLASSES[level]}`}
+                className={`h-3 w-3 border ${HEATMAP_COLOR_CLASSES[level]}`}
               />
             ))}
             <span>More</span>
@@ -245,7 +245,7 @@ export function StatisticsView() {
               <div
                 key={cell.localDate}
                 title={`${cell.localDate}: ${formatDurationHuman(cell.validFocusSeconds)} (${cell.completedSessionsCount} sessions)`}
-                className={`h-4 w-4 rounded border transition ${HEATMAP_COLOR_CLASSES[cell.intensityLevel]}`}
+                className={`h-4 w-4 border transition ${HEATMAP_COLOR_CLASSES[cell.intensityLevel]}`}
               />
             ))}
           </div>
@@ -256,7 +256,7 @@ export function StatisticsView() {
       <section className="cozy-card p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <History className="h-4 w-4 text-cozy-sage-dark" />
+            <PixelIcon name="statistics" size={16} className="text-cozy-sage-dark" />
             <h3 className="text-sm font-bold text-cozy-wood">Recent Focus History</h3>
           </div>
 

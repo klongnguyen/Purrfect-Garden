@@ -1,7 +1,7 @@
-import { Music, Pause, Play, SkipForward, Sliders, Volume2 } from 'lucide-react';
 import { COZY_TRACK_CATALOG } from '../../services/audioEngine';
 import { useAppStore } from '../../stores/useAppStore';
 import { useMusicStore } from '../../stores/useMusicStore';
+import { PixelIcon } from '../ui/PixelIcon';
 
 export function BottomMusicBar() {
   const isPlaying = useMusicStore((s) => s.isPlaying);
@@ -20,38 +20,43 @@ export function BottomMusicBar() {
   ).length;
 
   return (
-    <footer className="flex h-14 shrink-0 items-center justify-between gap-4 border-t border-cozy-border bg-cozy-panel/95 px-6">
+    <footer
+      className="flex h-14 shrink-0 items-center justify-between gap-4 border-t-[4px] border-[#2B160B] bg-[#7A4728] px-5 text-[#FFF4DC]"
+      style={{
+        boxShadow: 'inset 0px 2px 0px #A3643D'
+      }}
+    >
       {/* Play Controls & Track Title */}
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 items-center gap-2.5">
         <button
           type="button"
           onClick={togglePlay}
           aria-label={isPlaying ? 'Pause music' : 'Play music'}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-cozy-sage text-white shadow-pixel-sm transition hover:bg-cozy-sage-dark"
+          className="cozy-btn-primary h-9 w-9 p-0"
         >
-          {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          <PixelIcon name={isPlaying ? 'pause' : 'play'} size={16} />
         </button>
 
         <button
           type="button"
           onClick={() => void nextTrack()}
           aria-label="Next track"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-cozy-border bg-cozy-cream text-cozy-wood transition hover:bg-white"
+          className="cozy-btn-secondary h-9 w-9 p-0"
         >
-          <SkipForward className="h-3.5 w-3.5" />
+          <PixelIcon name="skip" size={14} />
         </button>
 
-        <div className="min-w-0">
+        <div className="min-w-0 pl-1">
           <div className="flex items-center gap-2">
-            <Music className="h-3.5 w-3.5 shrink-0 text-cozy-sage-dark" />
-            <p className="truncate text-xs font-semibold text-cozy-wood">
+            <PixelIcon name="music" size={14} className="text-[#F5CE86]" />
+            <p className="truncate text-xs font-bold uppercase tracking-wide text-[#FFF7E2]">
               {currentTrack.title}
             </p>
-            <span className="rounded-full bg-cozy-meadow px-2 py-0.5 text-[10px] font-bold text-cozy-sage-dark">
+            <span className="border border-[#2B160B] bg-[#5E9A4E] px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
               {currentTrack.category}
             </span>
           </div>
-          <p className="text-[11px] text-cozy-muted">
+          <p className="text-[11px] text-[#EAD2B0]">
             {isPlaying ? 'Playing softly' : 'Paused'}
             {activeAmbientCount > 0 ? ` · ${activeAmbientCount} ambient layers active` : ''}
           </p>
@@ -60,8 +65,8 @@ export function BottomMusicBar() {
 
       {/* Volume Slider & Open Full Mixer */}
       <div className="flex shrink-0 items-center gap-4">
-        <label className="flex items-center gap-2 text-xs text-cozy-muted">
-          <Volume2 className="h-4 w-4 text-cozy-sage-dark" />
+        <label className="flex items-center gap-2 text-xs text-[#FFF4DC]">
+          <PixelIcon name="volume" size={16} className="text-[#F5CE86]" />
           <input
             type="range"
             min={0}
@@ -69,9 +74,9 @@ export function BottomMusicBar() {
             value={Math.round(preferences.masterVolume * 100)}
             onChange={(e) => void setMasterVolume(Number(e.target.value) / 100)}
             aria-label="Master volume"
-            className="h-1.5 w-24 cursor-pointer accent-cozy-sage"
+            className="w-24"
           />
-          <span className="w-8 font-mono text-[11px] font-semibold text-cozy-wood">
+          <span className="w-9 text-right text-[11px] font-bold text-[#FFF7E2]">
             {Math.round(preferences.masterVolume * 100)}%
           </span>
         </label>
@@ -79,9 +84,9 @@ export function BottomMusicBar() {
         <button
           type="button"
           onClick={() => setActiveSection('music')}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-cozy-border bg-cozy-cream px-3 py-1.5 text-xs font-semibold text-cozy-wood transition hover:bg-white"
+          className="cozy-btn-secondary py-1.5 text-xs"
         >
-          <Sliders className="h-3.5 w-3.5 text-cozy-sage-dark" />
+          <PixelIcon name="settings" size={14} />
           <span>Mixer</span>
         </button>
       </div>

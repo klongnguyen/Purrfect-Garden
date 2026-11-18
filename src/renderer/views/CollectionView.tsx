@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { BookOpen, History, ShoppingBag, Sparkles, X } from 'lucide-react';
 import type { ItemCategory, ItemRarity } from '@shared/types/domain';
 import { PixelSprite } from '../components/garden/PixelSprite';
+import { PixelIcon } from '../components/ui/PixelIcon';
 import { useAppStore } from '../stores/useAppStore';
 import { useProgressionStore } from '../stores/useProgressionStore';
 
@@ -54,8 +54,8 @@ export function CollectionView() {
     <div className="mx-auto max-w-5xl space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-cozy-meadow px-3 py-1 text-xs font-semibold text-cozy-sage-dark">
-            <BookOpen className="h-3.5 w-3.5" />
+          <span className="pixel-pill">
+            <PixelIcon name="collection" size={14} />
             Collection &amp; XP Exchange
           </span>
           <h2 className="mt-2 text-2xl font-bold text-cozy-wood">
@@ -63,15 +63,15 @@ export function CollectionView() {
           </h2>
         </div>
 
-        <div className="inline-flex items-center gap-2 rounded-2xl border border-cozy-border bg-white px-4 py-2 shadow-pixel-sm">
-          <Sparkles className="h-4 w-4 text-amber-600" />
+        <div className="cozy-card inline-flex items-center gap-2 px-4 py-2">
+          <PixelIcon name="sparkles" size={16} className="text-[#D48B17]" />
           <span className="text-xs font-semibold text-cozy-muted">Available XP:</span>
           <span className="font-mono text-base font-bold text-cozy-ink">{xpBalance} XP</span>
         </div>
       </header>
 
       {progressionError && (
-        <div className="rounded-xl border border-cozy-peach/40 bg-cozy-peach/10 px-4 py-2.5 text-xs font-medium text-cozy-peach">
+        <div className="border-2 border-[#3D2112] bg-[#F5B7A3] px-4 py-2.5 text-xs font-bold text-[#24140B]">
           {progressionError}
         </div>
       )}
@@ -79,44 +79,44 @@ export function CollectionView() {
       {actionBanner && (
         <div
           role="status"
-          className="flex items-center justify-between gap-3 rounded-2xl border border-cozy-sage/50 bg-cozy-meadow/80 px-5 py-3 text-xs font-semibold text-cozy-wood"
+          className="flex items-center justify-between gap-3 border-2 border-[#243E1E] bg-[#DCEDBD] px-5 py-3 text-xs font-bold text-cozy-wood shadow-pixel-sm"
         >
           <span>{actionBanner}</span>
           <button
             type="button"
             onClick={clearActionBanner}
-            className="rounded-lg p-1 text-cozy-muted hover:bg-white/60"
+            className="border border-[#3D2112] bg-white p-1 text-cozy-wood"
             aria-label="Dismiss banner"
           >
-            <X className="h-3.5 w-3.5" />
+            <PixelIcon name="close" size={12} />
           </button>
         </div>
       )}
 
       {/* Main View Tabs */}
-      <div className="inline-flex rounded-xl border border-cozy-border bg-cozy-panel p-1">
+      <div className="inline-flex border-2 border-[#3D2112] bg-cozy-panel p-1 shadow-pixel-sm">
         <button
           type="button"
           onClick={() => setActiveTab('exchange')}
-          className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition ${
+          className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase transition ${
             activeTab === 'exchange'
               ? 'bg-cozy-sage text-white shadow-pixel-sm'
               : 'text-cozy-wood hover:bg-white/60'
           }`}
         >
-          <ShoppingBag className="h-3.5 w-3.5" />
+          <PixelIcon name="shop" size={14} />
           <span>XP Exchange Catalog</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('journal')}
-          className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition ${
+          className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase transition ${
             activeTab === 'journal'
               ? 'bg-cozy-sage text-white shadow-pixel-sm'
               : 'text-cozy-wood hover:bg-white/60'
           }`}
         >
-          <BookOpen className="h-3.5 w-3.5" />
+          <PixelIcon name="collection" size={14} />
           <span>Collection Journal &amp; Ledger</span>
         </button>
       </div>
@@ -258,7 +258,7 @@ export function CollectionView() {
           {/* XP Transaction Ledger */}
           <section className="cozy-card space-y-3 p-5">
             <div className="flex items-center gap-2">
-              <History className="h-4 w-4 text-cozy-sage-dark" />
+              <PixelIcon name="statistics" size={16} className="text-cozy-sage-dark" />
               <h3 className="text-sm font-bold text-cozy-wood">XP Transaction History</h3>
             </div>
 

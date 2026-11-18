@@ -1,4 +1,3 @@
-import { AlertCircle } from 'lucide-react';
 import { useAppStore } from '../../stores/useAppStore';
 import { AchievementsView } from '../../views/AchievementsView';
 import { CollectionView } from '../../views/CollectionView';
@@ -10,6 +9,7 @@ import { PlaceholderSectionView } from '../../views/PlaceholderSectionView';
 import { SettingsFoundationView } from '../../views/SettingsFoundationView';
 import { StatisticsView } from '../../views/StatisticsView';
 import { TasksView } from '../../views/TasksView';
+import { PixelIcon } from '../ui/PixelIcon';
 import { BottomMusicBar } from './BottomMusicBar';
 import { Sidebar } from './Sidebar';
 
@@ -22,7 +22,7 @@ export function AppShell() {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className="flex h-full items-center justify-center text-sm text-cozy-muted">
+        <div className="flex h-full items-center justify-center text-sm font-bold uppercase tracking-wide text-cozy-muted">
           Warming up Purrfect Garden...
         </div>
       );
@@ -58,23 +58,22 @@ export function AppShell() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         {isBrowserFallback && (
-          <div className="border-b border-cozy-amber bg-cozy-amber/25 px-6 py-1.5 text-xs font-medium text-cozy-wood">
+          <div className="border-b-2 border-[#3D2112] bg-[#F0BE63] px-5 py-1.5 text-xs font-bold text-[#24140B]">
             Browser Preview Mode: Electron IPC bridge not attached; using in-memory fallback defaults.
           </div>
         )}
 
         {errorMessage && (
-          <div className="flex items-center gap-2 border-b border-cozy-peach/40 bg-cozy-peach/15 px-6 py-2 text-xs font-medium text-cozy-peach">
-            <AlertCircle className="h-4 w-4 shrink-0" />
+          <div className="flex items-center gap-2 border-b-2 border-[#3D2112] bg-[#E8A088] px-5 py-2 text-xs font-bold text-[#24140B]">
+            <PixelIcon name="alert" size={14} />
             <span>{errorMessage}</span>
           </div>
         )}
 
-        <main className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-8">{renderContent()}</main>
+        <main className="min-h-0 flex-1 overflow-y-auto p-5 lg:p-6">{renderContent()}</main>
 
         <BottomMusicBar />
       </div>
     </div>
   );
 }
-

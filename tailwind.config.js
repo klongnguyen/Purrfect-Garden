@@ -4,29 +4,31 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'cozy-cream': '#FAF6EE',
-        'cozy-panel': '#F3EDE0',
-        'cozy-border': '#DFD3C3',
-        'cozy-sage': '#7BAE7F',
-        'cozy-sage-dark': '#5A8F5E',
-        'cozy-meadow': '#E9F5DB',
-        'cozy-peach': '#E07A5F',
-        'cozy-amber': '#F2CC8F',
-        'cozy-wood': '#5C4033',
-        'cozy-ink': '#2D2A26',
-        'cozy-muted': '#6E655F'
+        'cozy-cream': '#F4E8CF',
+        'cozy-panel': '#E5D1AC',
+        'cozy-border': '#6B4226',
+        'cozy-wood-dark': '#3D2112',
+        'cozy-wood-mid': '#8A522E',
+        'cozy-sage': '#6AA355',
+        'cozy-sage-dark': '#3F7334',
+        'cozy-meadow': '#DCEDBD',
+        'cozy-peach': '#D96D43',
+        'cozy-amber': '#F0BE63',
+        'cozy-wood': '#472817',
+        'cozy-ink': '#24140B',
+        'cozy-muted': '#6D513C'
       },
       fontFamily: {
-        sans: ['"Segoe UI"', '"Nunito"', 'system-ui', 'sans-serif'],
-        mono: ['"Cascadia Mono"', '"Consolas"', 'monospace']
+        sans: ['"Cascadia Mono"', '"Consolas"', '"Courier New"', 'monospace'],
+        mono: ['"Cascadia Mono"', '"Consolas"', '"Courier New"', 'monospace']
       },
       boxShadow: {
-        cozy: '0 4px 16px rgba(92, 64, 51, 0.08)',
-        'pixel-sm': '2px 2px 0px #DFD3C3',
-        'pixel-md': '3px 3px 0px #DFD3C3'
+        cozy: '3px 3px 0px #2C170B',
+        'pixel-sm': '2px 2px 0px #2C170B',
+        'pixel-md': '4px 4px 0px #2C170B',
+        'pixel-inset': 'inset 2px 2px 0px rgba(255, 248, 228, 0.7), inset -2px -2px 0px rgba(84, 46, 22, 0.25)'
       }
     }
   },
   plugins: []
 };
-

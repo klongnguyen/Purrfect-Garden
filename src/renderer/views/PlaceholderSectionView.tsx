@@ -1,6 +1,6 @@
-import { HeartHandshake, Sparkles, Ticket } from 'lucide-react';
 import type { NavigationSectionId } from '@shared/types/domain';
 import { PetIllustration } from '../components/garden/PixelSprite';
+import { PixelIcon } from '../components/ui/PixelIcon';
 
 interface SectionMeta {
   title: string;
@@ -43,27 +43,29 @@ const PET_SHOWCASE_CARDS: ReadonlyArray<{
   subtitle: string;
   trait: string;
   frameBg: string;
+  badgeCount?: number;
 }> = [
   {
     species: 'cat',
     name: 'Miso the Tabby Cat',
-    subtitle: 'Orange & Cream Shorthair',
+    subtitle: 'Orange & White Shorthair',
     trait: 'Loves sunny afternoon Pomodoro sessions and naps by the cottage.',
-    frameBg: 'bg-[#777B7E] border-[#595D60]'
+    frameBg: 'bg-[#7A7E81] border-[#303238]'
   },
   {
     species: 'dog',
     name: 'Biscuit the Golden Pup',
     subtitle: 'Floppy-Eared Companion',
     trait: 'Cheers loudly when you hit your daily focus goal & streaks.',
-    frameBg: 'bg-[#FFFFFF] border-[#E5DEC9]'
+    frameBg: 'bg-[#FFFFFF] border-[#303238]'
   },
   {
     species: 'capybara',
     name: 'Yuzu the Capybara',
     subtitle: 'Chill Yuzu-Topped Friend',
     trait: 'Brings pure zen calm to marathon deep-work & study blocks.',
-    frameBg: 'bg-[#ECCEB3] border-[#D6B08E]'
+    frameBg: 'bg-[#ECCCB0] border-[#303238]',
+    badgeCount: 8
   }
 ];
 
@@ -75,61 +77,78 @@ export function PlaceholderSectionView({
   const meta = SECTION_CATALOG[section];
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-5">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-cozy-meadow px-3 py-1 text-xs font-semibold text-cozy-sage-dark">
-            <Sparkles className="h-3.5 w-3.5" />
+          <span className="pixel-pill">
+            <PixelIcon name="pets" size={14} />
             {meta.milestone}
           </span>
-          <h2 className="mt-2 text-2xl font-bold text-cozy-wood">{meta.title}</h2>
-          <p className="mt-1 text-sm text-cozy-muted">{meta.description}</p>
+          <h2 className="mt-1.5 text-2xl font-bold uppercase tracking-tight text-cozy-wood">
+            {meta.title}
+          </h2>
+          <p className="mt-1 text-xs font-medium text-cozy-muted">{meta.description}</p>
         </div>
 
-        <div className="inline-flex items-center gap-2 rounded-2xl border-2 border-cozy-border bg-white px-4 py-2 text-xs font-semibold text-cozy-wood shadow-pixel-sm">
-          <Ticket className="h-4 w-4 text-amber-600" />
+        <div className="cozy-card flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase text-cozy-wood">
+          <PixelIcon name="gift" size={14} className="text-[#D48B17]" />
           <span>Earned via XP &amp; Achievements</span>
         </div>
       </header>
 
-      {/* Large 32x32 Pixel-Art Pet Companion Cards (Reference Image 2) */}
-      <div className="grid gap-5 sm:grid-cols-3">
-        {PET_SHOWCASE_CARDS.map((pet) => (
-          <div
-            key={pet.species}
-            className="cozy-card flex flex-col overflow-hidden p-4 transition hover:-translate-y-0.5"
-          >
-            <div
-              className={`flex h-52 w-full items-center justify-center rounded-2xl border-2 ${pet.frameBg} shadow-inner`}
-            >
-              <PetIllustration species={pet.species} size={148} />
-            </div>
+      {/* Dark Showcase Board Matching Reference Image 2 */}
+      <section className="pixel-showcase-dark p-5">
+        <div className="mb-4 flex items-center justify-between border-b-2 border-[#2A2C34] pb-3">
+          <h3 className="text-base font-bold text-white">2.7. Pet System – Những người bạn nhỏ</h3>
+          <span className="border border-[#3D404A] bg-[#22242B] px-2.5 py-0.5 text-[10px] font-bold uppercase text-[#D1D5DB]">
+            32×32 Pixel Companions
+          </span>
+        </div>
 
-            <div className="mt-4">
-              <div className="flex items-center justify-between gap-2">
-                <h3 className="text-base font-bold text-cozy-wood">{pet.name}</h3>
-                <span className="rounded-full bg-cozy-meadow px-2 py-0.5 text-[10px] font-bold uppercase text-cozy-sage-dark">
-                  Phase 3
-                </span>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {PET_SHOWCASE_CARDS.map((pet) => (
+            <div
+              key={pet.species}
+              className="flex flex-col border-2 border-[#2B2D35] bg-[#191A1F] p-3"
+            >
+              <div
+                className={`relative flex h-56 w-full items-center justify-center border-2 ${pet.frameBg}`}
+              >
+                <PetIllustration species={pet.species} size={160} />
+                {pet.badgeCount !== undefined && (
+                  <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 border border-[#1E1F24] bg-black/55 px-2 py-0.5 text-xs font-bold text-white">
+                    <PixelIcon name="pets" size={12} />
+                    {pet.badgeCount}
+                  </span>
+                )}
               </div>
-              <p className="mt-0.5 text-xs font-semibold text-cozy-sage-dark">{pet.subtitle}</p>
-              <p className="mt-2 text-xs leading-relaxed text-cozy-muted">{pet.trait}</p>
+
+              <div className="mt-3">
+                <div className="flex items-center justify-between gap-2">
+                  <h4 className="text-sm font-bold text-white">{pet.name}</h4>
+                  <span className="border border-[#243E1E] bg-[#5E9A4E] px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
+                    Phase 3
+                  </span>
+                </div>
+                <p className="mt-0.5 text-xs font-bold text-[#F5CE5E]">{pet.subtitle}</p>
+                <p className="mt-1.5 text-xs leading-relaxed text-[#9CA3AF]">{pet.trait}</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </section>
 
       {/* Phase 3 Planned Mechanics Summary */}
-      <section className="cozy-card p-6">
+      <section className="cozy-card p-5">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cozy-muted">
-          <HeartHandshake className="h-4 w-4 text-cozy-sage-dark" />
+          <PixelIcon name="heart" size={14} className="text-[#D95B34]" />
           <span>Upcoming Pet Adoption &amp; Garden Placement Design</span>
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {meta.highlights.map((item) => (
             <div
               key={item}
-              className="rounded-xl border border-cozy-border bg-cozy-cream px-4 py-3 text-xs font-medium text-cozy-wood"
+              className="border-2 border-[#3D2112] bg-[#FFF8E8] px-3.5 py-2.5 text-xs font-bold text-cozy-wood shadow-pixel-sm"
             >
               {item}
             </div>

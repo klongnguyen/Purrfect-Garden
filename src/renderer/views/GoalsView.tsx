@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { CheckCircle2, Flame, Gift, Sparkles, Target, Trophy, X } from 'lucide-react';
 import type { DailyGoalItemDTO } from '@shared/types/domain';
 import { useGoalStore } from '../stores/useGoalStore';
 import { formatDurationHuman } from '../utils/formatTime';
+import { PixelIcon } from '../components/ui/PixelIcon';
 
 export function GoalsView() {
   const dailyGoals = useGoalStore((s) => s.dailyGoals);
@@ -27,8 +27,8 @@ export function GoalsView() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <header>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-cozy-meadow px-3 py-1 text-xs font-semibold text-cozy-sage-dark">
-          <Target className="h-3.5 w-3.5" />
+        <span className="pixel-pill">
+          <PixelIcon name="goals" size={14} />
           Daily Goals &amp; Study Streaks
         </span>
         <h2 className="mt-2 text-2xl font-bold text-cozy-wood">
@@ -37,7 +37,7 @@ export function GoalsView() {
       </header>
 
       {goalError && (
-        <div className="rounded-xl border border-cozy-peach/40 bg-cozy-peach/10 px-4 py-2.5 text-xs font-medium text-cozy-peach">
+        <div className="border-2 border-[#3D2112] bg-[#F5B7A3] px-4 py-2.5 text-xs font-bold text-[#24140B]">
           {goalError}
         </div>
       )}
@@ -45,19 +45,19 @@ export function GoalsView() {
       {lastClaimBanner && (
         <div
           role="status"
-          className="flex items-center justify-between gap-3 rounded-2xl border border-cozy-sage/50 bg-cozy-meadow/80 px-5 py-3 text-xs font-semibold text-cozy-wood"
+          className="flex items-center justify-between gap-3 border-2 border-[#243E1E] bg-[#DCEDBD] px-5 py-3 text-xs font-bold text-cozy-wood shadow-pixel-sm"
         >
           <span className="inline-flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-amber-600" />
+            <PixelIcon name="sparkles" size={14} className="text-[#D48B17]" />
             {lastClaimBanner}
           </span>
           <button
             type="button"
             onClick={clearClaimBanner}
-            className="rounded-lg p-1 text-cozy-muted hover:bg-white/60"
+            className="border border-[#3D2112] bg-white p-1 text-cozy-wood"
             aria-label="Dismiss reward message"
           >
-            <X className="h-3.5 w-3.5" />
+            <PixelIcon name="close" size={12} />
           </button>
         </div>
       )}
@@ -66,8 +66,8 @@ export function GoalsView() {
       <section className="cozy-card p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-cozy-peach/30 bg-cozy-peach/15 text-cozy-peach">
-              <Flame className="h-7 w-7" />
+            <div className="flex h-14 w-14 items-center justify-center border-2 border-[#3D2112] bg-[#F5C5B5] text-[#C94324] shadow-pixel-sm">
+              <PixelIcon name="flame" size={28} />
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-cozy-muted">
@@ -85,9 +85,9 @@ export function GoalsView() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-cozy-border bg-cozy-cream px-4 py-2.5 text-xs">
-            <div className="flex items-center gap-1.5 font-semibold text-cozy-wood">
-              <Trophy className="h-4 w-4 text-amber-600" />
+          <div className="border-2 border-[#3D2112] bg-[#FFF8E8] px-4 py-2.5 text-xs shadow-pixel-sm">
+            <div className="flex items-center gap-1.5 font-bold text-cozy-wood">
+              <PixelIcon name="trophy" size={14} className="text-[#D48B17]" />
               <span>Next Milestone: {streakOverview?.nextMilestoneDays ?? 3} days</span>
             </div>
             <p className="mt-0.5 text-[11px] text-cozy-muted">
@@ -191,20 +191,20 @@ function GoalSectionCard({
               >
                 <div className="min-w-[220px] flex-1">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2
-                      className={`h-4 w-4 shrink-0 ${
-                        goal.isCompleted ? 'text-cozy-sage-dark' : 'text-cozy-border'
-                      }`}
+                    <PixelIcon
+                      name="check"
+                      size={14}
+                      className={goal.isCompleted ? 'text-cozy-sage-dark' : 'text-[#C2AD8E]'}
                     />
                     <p className="text-sm font-semibold text-cozy-wood">{goal.title}</p>
                   </div>
 
                   <div className="mt-2 flex items-center gap-3">
-                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-cozy-panel">
+                    <div className="pixel-progress-bar flex-1">
                       <div
                         style={{ width: `${pct}%` }}
-                        className={`h-full rounded-full transition-all ${
-                          goal.isCompleted ? 'bg-cozy-sage-dark' : 'bg-cozy-sage'
+                        className={`h-full transition-all ${
+                          goal.isCompleted ? 'bg-[#73BD59]' : 'bg-[#E5A93B]'
                         }`}
                       />
                     </div>
@@ -216,8 +216,8 @@ function GoalSectionCard({
 
                 <div className="shrink-0">
                   {goal.rewardClaimed ? (
-                    <span className="inline-flex items-center gap-1 rounded-xl border border-cozy-sage/40 bg-cozy-meadow px-3 py-1.5 text-xs font-semibold text-cozy-sage-dark">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
+                    <span className="pixel-pill">
+                      <PixelIcon name="check" size={14} />
                       Claimed (+{goal.rewardXp} XP)
                     </span>
                   ) : canClaim ? (
@@ -227,7 +227,7 @@ function GoalSectionCard({
                       onClick={() => onClaim(goal.id)}
                       className="cozy-btn-primary py-2 text-xs"
                     >
-                      <Gift className="h-3.5 w-3.5" />
+                      <PixelIcon name="gift" size={14} />
                       <span>
                         {claimingGoalId === goal.id
                           ? 'Claiming...'
@@ -235,7 +235,7 @@ function GoalSectionCard({
                       </span>
                     </button>
                   ) : (
-                    <span className="rounded-xl border border-cozy-border bg-white px-3 py-1.5 text-xs font-semibold text-cozy-muted">
+                    <span className="border-2 border-[#3D2112] bg-[#FFF8E8] px-3 py-1.5 text-xs font-bold text-cozy-muted shadow-pixel-sm">
                       Reward: +{goal.rewardXp} XP
                     </span>
                   )}

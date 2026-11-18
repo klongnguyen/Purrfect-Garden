@@ -1,5 +1,5 @@
-import { FastForward, Pause, Play, RotateCcw, Square } from 'lucide-react';
 import { useTimerStore } from '../../stores/useTimerStore';
+import { PixelIcon } from '../ui/PixelIcon';
 
 interface TimerControlsProps {
   compact?: boolean;
@@ -25,7 +25,7 @@ export function TimerControls({ compact = false }: TimerControlsProps) {
           onClick={() => void startTimer()}
           className={`cozy-btn-primary ${compact ? 'w-full' : 'px-6'}`}
         >
-          <Play className="h-4 w-4" />
+          <PixelIcon name="play" size={14} />
           <span>{startLabel}</span>
         </button>
 
@@ -36,7 +36,7 @@ export function TimerControls({ compact = false }: TimerControlsProps) {
             className={`cozy-btn-secondary ${compact ? 'w-full' : ''}`}
             title="Skip to next Pomodoro phase"
           >
-            <FastForward className="h-4 w-4" />
+            <PixelIcon name="skip" size={14} />
             <span>Skip Phase</span>
           </button>
         )}
@@ -52,7 +52,7 @@ export function TimerControls({ compact = false }: TimerControlsProps) {
           onClick={() => void pauseTimer()}
           className={`cozy-btn-secondary ${compact ? 'flex-1' : ''}`}
         >
-          <Pause className="h-4 w-4" />
+          <PixelIcon name="pause" size={14} />
           <span>Pause</span>
         </button>
 
@@ -61,7 +61,7 @@ export function TimerControls({ compact = false }: TimerControlsProps) {
           onClick={() => void stopTimer()}
           className={`cozy-btn-primary ${compact ? 'flex-1' : ''}`}
         >
-          <Square className="h-4 w-4" />
+          <PixelIcon name="stop" size={14} />
           <span>Finish</span>
         </button>
 
@@ -71,7 +71,7 @@ export function TimerControls({ compact = false }: TimerControlsProps) {
           className="cozy-btn-secondary"
           title="Discard current elapsed progress and reset"
         >
-          <RotateCcw className="h-4 w-4" />
+          <PixelIcon name="reset" size={14} />
           {!compact && <span>Reset</span>}
         </button>
 
@@ -82,7 +82,7 @@ export function TimerControls({ compact = false }: TimerControlsProps) {
             className="cozy-btn-secondary"
             title="Skip to next Pomodoro phase"
           >
-            <FastForward className="h-4 w-4" />
+            <PixelIcon name="skip" size={14} />
             <span>Skip</span>
           </button>
         )}
@@ -98,7 +98,7 @@ export function TimerControls({ compact = false }: TimerControlsProps) {
         onClick={() => void resumeTimer()}
         className={`cozy-btn-primary ${compact ? 'flex-1' : 'px-5'}`}
       >
-        <Play className="h-4 w-4" />
+        <PixelIcon name="play" size={14} />
         <span>Resume</span>
       </button>
 
@@ -107,7 +107,7 @@ export function TimerControls({ compact = false }: TimerControlsProps) {
         onClick={() => void stopTimer()}
         className={`cozy-btn-secondary ${compact ? 'flex-1' : ''}`}
       >
-        <Square className="h-4 w-4" />
+        <PixelIcon name="stop" size={14} />
         <span>Finish</span>
       </button>
 
@@ -117,10 +117,9 @@ export function TimerControls({ compact = false }: TimerControlsProps) {
         className="cozy-btn-secondary"
         title="Discard paused session and reset"
       >
-        <RotateCcw className="h-4 w-4" />
+        <PixelIcon name="reset" size={14} />
         {!compact && <span>Reset</span>}
       </button>
     </div>
   );
 }
-

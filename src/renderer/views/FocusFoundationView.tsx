@@ -1,18 +1,8 @@
 import { useEffect } from 'react';
-import {
-  AlertCircle,
-  CheckCircle2,
-  CheckSquare,
-  Clock,
-  Flower2,
-  ShieldCheck,
-  Sparkles,
-  Target,
-  X
-} from 'lucide-react';
 import type { TimerMode } from '@shared/types/domain';
 import { GardenThemePreviewBanner, PetIllustration } from '../components/garden/PixelSprite';
 import { TimerControls } from '../components/timer/TimerControls';
+import { PixelIcon } from '../components/ui/PixelIcon';
 import { useAppStore } from '../stores/useAppStore';
 import { useGoalStore } from '../stores/useGoalStore';
 import { useTaskStore } from '../stores/useTaskStore';
@@ -78,8 +68,8 @@ export function FocusFoundationView() {
     <div className="mx-auto max-w-5xl space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-cozy-meadow px-3 py-1 text-xs font-semibold text-cozy-sage-dark">
-            <Clock className="h-3.5 w-3.5" />
+          <span className="pixel-pill">
+            <PixelIcon name="timer" size={14} />
             Focus Workspace · Authoritative Monotonic Timer
           </span>
           <h2 className="mt-2 text-2xl font-bold text-cozy-wood">
@@ -100,10 +90,10 @@ export function FocusFoundationView() {
       {timerState.pendingRecovery && timerState.status === 'paused' && (
         <div
           role="status"
-          className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-cozy-amber bg-cozy-amber/20 px-5 py-3.5"
+          className="flex flex-wrap items-center justify-between gap-4 border-2 border-[#3D2112] bg-[#F5D68E] px-5 py-3.5 shadow-pixel-sm"
         >
           <div className="flex items-start gap-3">
-            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-cozy-wood" />
+            <PixelIcon name="alert" size={18} className="mt-0.5 text-cozy-wood" />
             <div>
               <p className="text-sm font-bold text-cozy-wood">
                 Paused Session Restored ({formatTimerClock(timerState.elapsedSeconds)} elapsed)
@@ -137,10 +127,10 @@ export function FocusFoundationView() {
       {lastCompletion?.session && (
         <div
           role="status"
-          className="flex items-center justify-between gap-4 rounded-2xl border border-cozy-sage/50 bg-cozy-meadow/80 px-5 py-3.5"
+          className="flex items-center justify-between gap-4 border-2 border-[#243E1E] bg-[#DCEDBD] px-5 py-3.5 shadow-pixel-sm"
         >
           <div className="flex items-center gap-3">
-            <CheckCircle2 className="h-5 w-5 shrink-0 text-cozy-sage-dark" />
+            <PixelIcon name="check" size={18} className="text-cozy-sage-dark" />
             <div>
               <p className="text-sm font-bold text-cozy-wood">
                 {lastCompletion.session.phase === 'focus'
@@ -160,10 +150,10 @@ export function FocusFoundationView() {
           <button
             type="button"
             onClick={clearLastCompletion}
-            className="rounded-lg p-1 text-cozy-muted hover:bg-white/60 hover:text-cozy-wood"
+            className="border border-[#3D2112] bg-white p-1 text-cozy-wood"
             aria-label="Dismiss completion banner"
           >
-            <X className="h-4 w-4" />
+            <PixelIcon name="close" size={14} />
           </button>
         </div>
       )}
@@ -262,8 +252,8 @@ export function FocusFoundationView() {
             </div>
           ) : (
             activeLinkedTask && (
-              <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-cozy-meadow px-3 py-1 text-xs font-semibold text-cozy-sage-dark">
-                <CheckSquare className="h-3.5 w-3.5" />
+              <div className="pixel-pill mb-3">
+                <PixelIcon name="tasks" size={14} />
                 <span>Focusing on: {activeLinkedTask.title}</span>
               </div>
             )
@@ -281,7 +271,7 @@ export function FocusFoundationView() {
             <button
               type="button"
               onClick={() => setActiveSection('garden')}
-              className="text-xs font-medium text-cozy-sage-dark underline-offset-4 hover:underline"
+              className="text-xs font-bold text-cozy-sage-dark underline-offset-4 hover:underline"
             >
               View {activeGarden?.customName ?? 'Garden'} while focusing
             </button>
@@ -293,7 +283,7 @@ export function FocusFoundationView() {
           <div className="cozy-card overflow-hidden p-4">
             <div className="flex items-center justify-between gap-2 text-sm font-bold text-cozy-wood">
               <span className="flex items-center gap-2">
-                <Flower2 className="h-4 w-4 text-cozy-sage-dark" />
+                <PixelIcon name="garden" size={16} className="text-cozy-sage-dark" />
                 <span>Active Garden Preview</span>
               </span>
               <span className="rounded-full bg-cozy-meadow px-2 py-0.5 text-[10px] font-bold text-cozy-sage-dark">
@@ -345,7 +335,7 @@ export function FocusFoundationView() {
 
           <div className="cozy-card p-5">
             <div className="flex items-center gap-2 text-sm font-bold text-cozy-wood">
-              <Sparkles className="h-4 w-4 text-amber-600" />
+              <PixelIcon name="sparkles" size={16} className="text-[#D48B17]" />
               <span>Today&apos;s Focus &amp; Rules</span>
             </div>
             <ul className="mt-3 space-y-2 text-xs text-cozy-muted">
@@ -364,7 +354,7 @@ export function FocusFoundationView() {
                 <span className="font-semibold text-cozy-ink">{earlyStopThreshold}s</span>
               </li>
               <li className="flex items-start gap-1.5 pt-1 text-[11px]">
-                <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-cozy-sage-dark" />
+                <PixelIcon name="shield" size={14} className="mt-0.5 text-cozy-sage-dark" />
                 <span>
                   Sessions under {earlyStopThreshold}s still save to history with 0 XP. Break
                   phases never earn focus XP.
@@ -376,13 +366,13 @@ export function FocusFoundationView() {
           <div className="cozy-card p-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-bold text-cozy-wood">
-                <CheckSquare className="h-4 w-4 text-cozy-sage-dark" />
+                <PixelIcon name="tasks" size={16} className="text-cozy-sage-dark" />
                 <span>Today&apos;s Tasks</span>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveSection('tasks')}
-                className="text-xs font-semibold text-cozy-sage-dark hover:underline"
+                className="text-xs font-bold text-cozy-sage-dark hover:underline"
               >
                 Manage
               </button>
@@ -394,7 +384,7 @@ export function FocusFoundationView() {
                 allIncompleteTasks.slice(0, 4).map((task) => (
                   <label
                     key={task.id}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-cozy-border/70 bg-cozy-cream/70 px-2.5 py-1.5 text-xs"
+                    className="flex cursor-pointer items-center gap-2 border-2 border-[#3D2112]/40 bg-[#FFF8E8] px-2.5 py-1.5 text-xs"
                   >
                     <input
                       type="checkbox"
@@ -402,7 +392,7 @@ export function FocusFoundationView() {
                       onChange={() => void toggleComplete(task.id, !task.isCompleted)}
                       className="h-3.5 w-3.5 accent-cozy-sage"
                     />
-                    <span className="truncate font-medium text-cozy-wood">{task.title}</span>
+                    <span className="truncate font-bold text-cozy-wood">{task.title}</span>
                   </label>
                 ))
               )}
@@ -412,7 +402,7 @@ export function FocusFoundationView() {
           <div className="cozy-card p-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-bold text-cozy-wood">
-                <Target className="h-4 w-4 text-cozy-sage-dark" />
+                <PixelIcon name="goals" size={16} className="text-cozy-sage-dark" />
                 <span>Daily Goals</span>
               </div>
               <button

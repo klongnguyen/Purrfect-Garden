@@ -1,38 +1,25 @@
-import {
-  Award,
-  BarChart3,
-  BookOpen,
-  Cat,
-  CheckSquare,
-  Flame,
-  Flower2,
-  Music,
-  Settings,
-  Sparkles,
-  Target,
-  Timer
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import type { NavigationSectionId } from '@shared/types/domain';
 import { useAppStore } from '../../stores/useAppStore';
+import { PetIllustration } from '../garden/PixelSprite';
+import { PixelIcon, type PixelIconName } from '../ui/PixelIcon';
 
 interface NavItem {
   id: NavigationSectionId;
   label: string;
-  icon: LucideIcon;
+  icon: PixelIconName;
 }
 
 const NAV_ITEMS: readonly NavItem[] = [
-  { id: 'focus', label: 'Focus', icon: Timer },
-  { id: 'garden', label: 'Garden', icon: Flower2 },
-  { id: 'tasks', label: 'Tasks', icon: CheckSquare },
-  { id: 'goals', label: 'Goals', icon: Target },
-  { id: 'achievements', label: 'Achievements', icon: Award },
-  { id: 'collection', label: 'Collection', icon: BookOpen },
-  { id: 'pets', label: 'Pets', icon: Cat },
-  { id: 'music', label: 'Music', icon: Music },
-  { id: 'statistics', label: 'Statistics', icon: BarChart3 },
-  { id: 'settings', label: 'Settings', icon: Settings }
+  { id: 'focus', label: 'Focus', icon: 'timer' },
+  { id: 'garden', label: 'Garden', icon: 'garden' },
+  { id: 'tasks', label: 'Tasks', icon: 'tasks' },
+  { id: 'goals', label: 'Goals', icon: 'goals' },
+  { id: 'achievements', label: 'Achievements', icon: 'achievements' },
+  { id: 'collection', label: 'Collection', icon: 'collection' },
+  { id: 'pets', label: 'Pets', icon: 'pets' },
+  { id: 'music', label: 'Music', icon: 'music' },
+  { id: 'statistics', label: 'Statistics', icon: 'statistics' },
+  { id: 'settings', label: 'Settings', icon: 'settings' }
 ];
 
 export function Sidebar() {
@@ -44,73 +31,97 @@ export function Sidebar() {
   const xpBalance = progression?.xpBalance ?? 0;
 
   return (
-    <aside className="flex h-full w-64 shrink-0 flex-col border-r border-cozy-border bg-cozy-panel/90 px-4 py-5">
-      {/* Brand Header */}
-      <div className="mb-6 flex items-center gap-3 px-2">
-        <div className="pixel-art flex h-10 w-10 items-center justify-center rounded-xl border-2 border-cozy-sage-dark/40 bg-cozy-meadow text-cozy-sage-dark shadow-pixel-sm">
-          <Cat className="h-5 w-5" />
+    <aside
+      className="flex h-full w-64 shrink-0 flex-col border-r-[4px] border-[#2B160B] bg-[#5B341D] px-3.5 py-4 text-[#FFF4DC]"
+      style={{
+        backgroundImage:
+          'repeating-linear-gradient(0deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 2px, transparent 2px, transparent 14px)',
+        boxShadow: 'inset -3px 0px 0px #412312'
+      }}
+    >
+      {/* Carved Wooden Pixel Brand Header */}
+      <div
+        className="mb-4 flex items-center gap-3 border-2 border-[#2B160B] bg-[#7A4728] px-3 py-2.5"
+        style={{
+          boxShadow: 'inset 2px 2px 0px #A3643D, inset -2px -2px 0px #522D17, 2px 2px 0px #24130B'
+        }}
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#2B160B] bg-[#F4E8CF]">
+          <PetIllustration species="cat" size={34} />
         </div>
-        <div>
-          <h1 className="text-base font-bold tracking-tight text-cozy-wood">
+        <div className="min-w-0">
+          <h1 className="truncate text-sm font-bold uppercase tracking-tight text-[#FFF8E4]">
             Purrfect Garden
           </h1>
-          <p className="text-[11px] leading-tight text-cozy-muted">
+          <p className="text-[10px] leading-tight text-[#EAD2B0]">
             The garden grows when you grow.
           </p>
         </div>
       </div>
 
-      {/* Navigation Links */}
-      <nav aria-label="Primary Navigation" className="flex-1 space-y-1 overflow-y-auto pr-1">
+      {/* Pixel Navigation Tabs */}
+      <nav aria-label="Primary Navigation" className="flex-1 space-y-1.5 overflow-y-auto pr-1">
         {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
           const isActive = activeSection === item.id;
           return (
             <button
               key={item.id}
               type="button"
               onClick={() => setActiveSection(item.id)}
-              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition ${
+              className={`flex w-full items-center gap-3 border-2 px-3 py-2 text-left text-xs font-bold uppercase tracking-wide transition ${
                 isActive
-                  ? 'bg-cozy-sage text-white shadow-pixel-sm'
-                  : 'text-cozy-wood/85 hover:bg-cozy-cream/80 hover:text-cozy-wood'
+                  ? 'border-[#243E1E] bg-[#649E4F] text-white'
+                  : 'border-[#3A1E0E] bg-[#814D2D] text-[#F9E7C9] hover:bg-[#945A36]'
               }`}
+              style={{
+                boxShadow: isActive
+                  ? 'inset 2px 2px 0px #8EC976, inset -2px -2px 0px #3E6B2F, 2px 2px 0px #24130B'
+                  : 'inset 2px 2px 0px #A66841, inset -2px -2px 0px #59321A'
+              }}
             >
-              <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-cozy-sage-dark'}`} />
+              <PixelIcon
+                name={item.icon}
+                size={16}
+                className={isActive ? 'text-[#FFF9D6]' : 'text-[#F5CE86]'}
+              />
               <span>{item.label}</span>
             </button>
           );
         })}
       </nav>
 
-      {/* Footer Live Status Card */}
-      <div className="mt-4 rounded-2xl border border-cozy-border bg-cozy-cream p-3.5 shadow-pixel-sm">
-        <div className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-cozy-muted">
+      {/* Footer Live Status Wooden Plaque */}
+      <div
+        className="mt-4 border-2 border-[#2B160B] bg-[#7A4728] p-3"
+        style={{
+          boxShadow: 'inset 2px 2px 0px #A3643D, inset -2px -2px 0px #522D17, 3px 3px 0px #24130B'
+        }}
+      >
+        <div className="mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#F7DFB9]">
           <span>Daily Progress</span>
-          <span className="rounded-full bg-cozy-meadow px-2 py-0.5 text-[10px] font-bold text-cozy-sage-dark">
-            M1.1
+          <span className="border border-[#2B160B] bg-[#5E9A4E] px-1.5 py-0.5 text-[10px] font-bold text-white">
+            COZY
           </span>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-xl border border-cozy-border/70 bg-white/75 px-2.5 py-2">
-            <div className="flex items-center gap-1.5 text-xs text-cozy-muted">
-              <Flame className="h-3.5 w-3.5 text-cozy-peach" />
+          <div className="border-2 border-[#2B160B] bg-[#F4E8CF] px-2 py-1.5 text-[#24140B]">
+            <div className="flex items-center gap-1 text-[10px] font-bold uppercase text-[#6D513C]">
+              <PixelIcon name="flame" size={12} className="text-[#D95B34]" />
               <span>Streak</span>
             </div>
-            <p className="mt-0.5 text-sm font-bold text-cozy-ink">
+            <p className="mt-0.5 text-xs font-bold text-[#24140B]">
               {currentStreak} {currentStreak === 1 ? 'day' : 'days'}
             </p>
           </div>
-          <div className="rounded-xl border border-cozy-border/70 bg-white/75 px-2.5 py-2">
-            <div className="flex items-center gap-1.5 text-xs text-cozy-muted">
-              <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+          <div className="border-2 border-[#2B160B] bg-[#F4E8CF] px-2 py-1.5 text-[#24140B]">
+            <div className="flex items-center gap-1 text-[10px] font-bold uppercase text-[#6D513C]">
+              <PixelIcon name="sparkles" size={12} className="text-[#D48B17]" />
               <span>XP</span>
             </div>
-            <p className="mt-0.5 text-sm font-bold text-cozy-ink">{xpBalance} XP</p>
+            <p className="mt-0.5 text-xs font-bold text-[#24140B]">{xpBalance} XP</p>
           </div>
         </div>
       </div>
     </aside>
   );
 }
-
