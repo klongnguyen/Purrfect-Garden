@@ -8,7 +8,7 @@ interface SectionMeta {
 }
 
 const SECTION_CATALOG: Record<
-  Exclude<NavigationSectionId, 'focus' | 'garden' | 'settings'>,
+  Exclude<NavigationSectionId, 'focus' | 'garden' | 'settings' | 'statistics'>,
   SectionMeta
 > = {
   tasks: {
@@ -76,22 +76,11 @@ const SECTION_CATALOG: Record<
       'Optional fade-out on session completion',
       'App stays fully functional even without audio files'
     ]
-  },
-  statistics: {
-    title: 'Focus History & Statistics',
-    milestone: 'Milestone M1.3',
-    description:
-      'Track today’s focus time, daily/weekly/monthly summaries, activity heatmap, and task breakdowns.',
-    highlights: [
-      'Records all focus sessions including <60s sessions',
-      'Strictly excludes break phases from focus totals',
-      'Persists all completed & stopped sessions locally'
-    ]
   }
 };
 
 interface PlaceholderSectionViewProps {
-  section: Exclude<NavigationSectionId, 'focus' | 'garden' | 'settings'>;
+  section: Exclude<NavigationSectionId, 'focus' | 'garden' | 'settings' | 'statistics'>;
 }
 
 export function PlaceholderSectionView({ section }: PlaceholderSectionViewProps) {

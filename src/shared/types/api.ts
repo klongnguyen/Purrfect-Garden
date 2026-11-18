@@ -1,5 +1,9 @@
 import type {
+  DailyHeatmapCellDTO,
   FocusCompletionResult,
+  FocusSessionFilterInput,
+  FocusSessionHistoryItemDTO,
+  FocusStatsSummaryDTO,
   GardenAreaDTO,
   ProgressionOverviewDTO,
   SetTimerModeInput,
@@ -35,6 +39,11 @@ export interface PurrfectAPI {
     setMode(input: SetTimerModeInput): Promise<TimerStateSnapshot>;
     onTick(callback: (snapshot: TimerStateSnapshot) => void): () => void;
     onSessionCompleted(callback: (result: FocusCompletionResult) => void): () => void;
+  };
+  focusHistory: {
+    getStatsSummary(referenceLocalDate: string): Promise<FocusStatsSummaryDTO>;
+    listSessions(filter?: FocusSessionFilterInput): Promise<FocusSessionHistoryItemDTO[]>;
+    getHeatmap(endLocalDate: string, daysCount?: number): Promise<DailyHeatmapCellDTO[]>;
   };
 }
 

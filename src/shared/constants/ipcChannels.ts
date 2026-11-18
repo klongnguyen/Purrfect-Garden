@@ -13,7 +13,10 @@ export const IPC_CHANNELS = Object.freeze({
   TIMER_SKIP_PHASE: 'timer:skip-phase',
   TIMER_SET_MODE: 'timer:set-mode',
   TIMER_TICK_EVENT: 'timer:tick-event',
-  TIMER_COMPLETED_EVENT: 'timer:completed-event'
+  TIMER_COMPLETED_EVENT: 'timer:completed-event',
+  FOCUS_HISTORY_GET_STATS: 'focus-history:get-stats',
+  FOCUS_HISTORY_LIST_SESSIONS: 'focus-history:list-sessions',
+  FOCUS_HISTORY_GET_HEATMAP: 'focus-history:get-heatmap'
 } as const);
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

@@ -5,6 +5,7 @@ import { IPC_CHANNELS } from '@shared/constants/ipcChannels';
 import { createDatabaseConnection } from './database/connection';
 import { runMigrations } from './database/migrator';
 import { FoundationService } from './services/FoundationService';
+import { FocusHistoryService } from './services/FocusHistoryService';
 import { TimerSupervisor } from './services/TimerSupervisor';
 import { registerIpcHandlers } from './ipc/registerIpcHandlers';
 
@@ -78,13 +79,14 @@ app.whenReady().then(() => {
   runMigrations(database);
 
   const foundationService = new FoundationService(database, dbPath);
+  const focusHistoryService = new FocusHistoryService(database);
   timerSupervisor = new TimerSupervisor(database, {
     onTick: (snapshot) => broadcastToRenderer(IPC_CHANNELS.TIMER_TICK_EVENT, snapshot),
     onCompleted: (result) =>
       broadcastToRenderer(IPC_CHANNELS.TIMER_COMPLETED_EVENT, result)
   });
 
-  registerIpcHandlers(foundationService, timerSupervisor);
+  registerIpcHandlers(foundationService, timerSupervisor, focusHistoryService);
 
   mainWindow = createMainWindow();
 

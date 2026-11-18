@@ -41,3 +41,19 @@ export function getPhaseDisplayLabel(mode: TimerMode, phase: TimerPhase): string
   }
 }
 
+export function formatDurationHuman(totalSeconds: number): string {
+  const safe = Math.max(0, Math.floor(totalSeconds));
+  if (safe === 0) return '0m';
+  if (safe < 60) return `${safe}s`;
+
+  const hours = Math.floor(safe / 3600);
+  const minutes = Math.floor((safe % 3600) / 60);
+  const seconds = safe % 60;
+
+  if (hours > 0) {
+    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+  }
+
+  return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+}
+

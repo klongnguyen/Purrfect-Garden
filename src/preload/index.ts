@@ -3,6 +3,7 @@ import { IPC_CHANNELS } from '@shared/constants/ipcChannels';
 import type { PurrfectAPI } from '@shared/types/api';
 import type {
   FocusCompletionResult,
+  FocusSessionFilterInput,
   SetTimerModeInput,
   StartTimerInput,
   TimerStateSnapshot,
@@ -50,6 +51,14 @@ const purrfectAPI: PurrfectAPI = {
         ipcRenderer.removeListener(IPC_CHANNELS.TIMER_COMPLETED_EVENT, listener);
       };
     }
+  },
+  focusHistory: {
+    getStatsSummary: (referenceLocalDate: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.FOCUS_HISTORY_GET_STATS, referenceLocalDate),
+    listSessions: (filter?: FocusSessionFilterInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.FOCUS_HISTORY_LIST_SESSIONS, filter),
+    getHeatmap: (endLocalDate: string, daysCount?: number) =>
+      ipcRenderer.invoke(IPC_CHANNELS.FOCUS_HISTORY_GET_HEATMAP, endLocalDate, daysCount)
   }
 };
 

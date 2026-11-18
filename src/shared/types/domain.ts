@@ -129,3 +129,57 @@ export interface SystemStatusDTO {
   config: BalanceConfig;
 }
 
+export type HeatmapIntensityLevel = 0 | 1 | 2 | 3 | 4;
+
+export interface FocusSessionHistoryItemDTO extends FocusSessionDTO {
+  taskTitle: string | null;
+  taskCategory: string | null;
+}
+
+export interface FocusSessionFilterInput {
+  limit?: number;
+  includeBreaksAndInterrupted?: boolean;
+  localDate?: string;
+  taskId?: string;
+}
+
+export interface DailyHeatmapCellDTO {
+  localDate: string;
+  validFocusSeconds: number;
+  completedSessionsCount: number;
+  streakQualified: boolean;
+  intensityLevel: HeatmapIntensityLevel;
+}
+
+export interface TaskFocusBreakdownDTO {
+  taskId: string | null;
+  taskTitle: string;
+  category: string;
+  totalFocusSeconds: number;
+  sessionCount: number;
+}
+
+export interface DailyFocusTrendPointDTO {
+  localDate: string;
+  validFocusSeconds: number;
+  completedSessionsCount: number;
+}
+
+export interface FocusStatsSummaryDTO {
+  referenceLocalDate: string;
+  todayFocusSeconds: number;
+  todaySessionsCount: number;
+  thisWeekFocusSeconds: number;
+  thisWeekSessionsCount: number;
+  thisMonthFocusSeconds: number;
+  thisMonthSessionsCount: number;
+  totalFocusSeconds: number;
+  totalFocusSessionsCount: number;
+  averageSessionSeconds: number;
+  longestSessionSeconds: number;
+  currentStreak: number;
+  longestStreak: number;
+  recentDailyTrend: DailyFocusTrendPointDTO[];
+  taskBreakdown: TaskFocusBreakdownDTO[];
+}
+

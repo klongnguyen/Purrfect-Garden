@@ -1,16 +1,19 @@
 import { ipcMain } from 'electron';
 import { IPC_CHANNELS } from '@shared/constants/ipcChannels';
 import type {
+  FocusSessionFilterInput,
   SetTimerModeInput,
   StartTimerInput,
   UpdateTimerPreferencesInput
 } from '@shared/types/domain';
+import type { FocusHistoryService } from '../services/FocusHistoryService';
 import type { FoundationService } from '../services/FoundationService';
 import type { TimerSupervisor } from '../services/TimerSupervisor';
 
 export function registerIpcHandlers(
   foundationService: FoundationService,
-  timerSupervisor: TimerSupervisor
+  timerSupervisor: TimerSupervisor,
+  focusHistoryService: FocusHistoryService
 ): void {
   ipcMain.handle(IPC_CHANNELS.SYSTEM_GET_STATUS, () => {
     return foundationService.getSystemStatus();
@@ -68,5 +71,26 @@ export function registerIpcHandlers(
   ipcMain.handle(IPC_CHANNELS.TIMER_SET_MODE, (_event, input: SetTimerModeInput) => {
     return timerSupervisor.setMode(input);
   });
+
+  ipcMain.handle(
+    IPC_CHANNELS.FOCUS_HISTORY_GET_STATS,
+    (_event, referenceLocalDate: string) => {
+      return focusHistoryService.getStatsSummary(referenceLocalDate);
+    }
+  );
+
+  ipcMain.handle(
+    IPC_CHANNELS.FOCUS_HISTORY_LIST_SESSIONS,
+    (_event, filter?: FocusSessionFilterInput) => {
+      return focusHistoryService.listSessions(filter);
+    }
+  );
+
+  ipcMain.handle(
+    IPC_CHANNELS.FOCUS_HISTORY_GET_HEATMAP,
+    (_event, endLocalDate: string, daysCount?: number) => {
+      return focusHistoryService.getHeatmap(endLocalDate, daysCount);
+    }
+  );
 }
 

@@ -4,6 +4,7 @@ import { FocusFoundationView } from '../../views/FocusFoundationView';
 import { GardenFoundationView } from '../../views/GardenFoundationView';
 import { PlaceholderSectionView } from '../../views/PlaceholderSectionView';
 import { SettingsFoundationView } from '../../views/SettingsFoundationView';
+import { StatisticsView } from '../../views/StatisticsView';
 import { BottomMusicBar } from './BottomMusicBar';
 import { Sidebar } from './Sidebar';
 
@@ -27,6 +28,8 @@ export function AppShell() {
         return <FocusFoundationView />;
       case 'garden':
         return <GardenFoundationView />;
+      case 'statistics':
+        return <StatisticsView />;
       case 'settings':
         return <SettingsFoundationView />;
       default:

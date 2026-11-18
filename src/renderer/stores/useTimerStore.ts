@@ -6,6 +6,7 @@ import type {
   TimerStateSnapshot
 } from '@shared/types/domain';
 import { useAppStore } from './useAppStore';
+import { useStatsStore } from './useStatsStore';
 
 const INITIAL_TIMER_SNAPSHOT: TimerStateSnapshot = {
   sessionId: null,
@@ -81,6 +82,9 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         timerError: null
       });
       void useAppStore.getState().refreshProgression();
+      if (useStatsStore.getState().summary !== null) {
+        void useStatsStore.getState().loadStatistics();
+      }
     });
 
     return () => {
@@ -224,6 +228,9 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         lastCompletion: result
       });
       await useAppStore.getState().refreshProgression();
+      if (useStatsStore.getState().summary !== null) {
+        void useStatsStore.getState().loadStatistics();
+      }
     } catch (error) {
       set({
         timerError: error instanceof Error ? error.message : 'Unable to stop session.'
