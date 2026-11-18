@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #dfd3c3 transparent;
+  }
+}
+
+@layer utilities {
+  .pixel-art {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+}
+
+@layer components {
+  .cozy-card {
+    @apply rounded-2xl border border-cozy-border bg-white/80 shadow-cozy backdrop-blur-sm;
+  }
+
+  .cozy-panel-surface {
+    @apply rounded-2xl border border-cozy-border bg-cozy-panel;
+  }
+
+  .cozy-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-cozy-sage px-4 py-2.5 text-sm font-semibold text-white shadow-pixel-sm transition hover:bg-cozy-sage-dark active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .cozy-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-cozy-border bg-cozy-cream px-4 py-2 text-sm font-medium text-cozy-wood transition hover:bg-cozy-panel;
+  }
+
+  .cozy-input {
+    @apply w-full rounded-xl border border-cozy-border bg-cozy-cream px-3 py-2 text-sm text-cozy-ink outline-none transition focus:border-cozy-sage focus:ring-2 focus:ring-cozy-sage/25;
+  }
+}
+

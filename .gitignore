@@ -1,0 +1,12 @@
+node_modules/
+dist/
+out/
+release/
+*.db
+*.db-wal
+*.db-shm
+.DS_Store
+coverage/
+.vite/
+npm-debug.log*
+
