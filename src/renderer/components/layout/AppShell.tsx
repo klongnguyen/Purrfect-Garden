@@ -2,9 +2,12 @@ import { AlertCircle } from 'lucide-react';
 import { useAppStore } from '../../stores/useAppStore';
 import { FocusFoundationView } from '../../views/FocusFoundationView';
 import { GardenFoundationView } from '../../views/GardenFoundationView';
+import { GoalsView } from '../../views/GoalsView';
+import { MusicView } from '../../views/MusicView';
 import { PlaceholderSectionView } from '../../views/PlaceholderSectionView';
 import { SettingsFoundationView } from '../../views/SettingsFoundationView';
 import { StatisticsView } from '../../views/StatisticsView';
+import { TasksView } from '../../views/TasksView';
 import { BottomMusicBar } from './BottomMusicBar';
 import { Sidebar } from './Sidebar';
 
@@ -28,6 +31,12 @@ export function AppShell() {
         return <FocusFoundationView />;
       case 'garden':
         return <GardenFoundationView />;
+      case 'tasks':
+        return <TasksView />;
+      case 'goals':
+        return <GoalsView />;
+      case 'music':
+        return <MusicView />;
       case 'statistics':
         return <StatisticsView />;
       case 'settings':

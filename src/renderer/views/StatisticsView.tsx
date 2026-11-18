@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BarChart3, Calendar, Clock, Flame, History, RefreshCw } from 'lucide-react';
 import type { HeatmapIntensityLevel } from '@shared/types/domain';
 import { useStatsStore } from '../stores/useStatsStore';
+import { useTaskStore } from '../stores/useTaskStore';
 import { formatDurationHuman, formatTimerClock } from '../utils/formatTime';
 
 const HEATMAP_COLOR_CLASSES: Record<HeatmapIntensityLevel, string> = {
@@ -21,10 +22,14 @@ export function StatisticsView() {
   const statsError = useStatsStore((s) => s.statsError);
   const loadStatistics = useStatsStore((s) => s.loadStatistics);
   const setIncludeBreaksAndInterrupted = useStatsStore((s) => s.setIncludeBreaksAndInterrupted);
+  const allTasks = useTaskStore((s) => s.allTasks);
+  const loadTasks = useTaskStore((s) => s.loadTasks);
+  const linkSessionTask = useTaskStore((s) => s.linkSessionTask);
 
   useEffect(() => {
     void loadStatistics();
-  }, [loadStatistics]);
+    void loadTasks();
+  }, [loadStatistics, loadTasks]);
 
   const maxTrendSeconds = Math.max(
     1,
@@ -295,8 +300,24 @@ export function StatisticsView() {
                         : 'Long Break'}
                   </span>
                   <span className="capitalize text-cozy-muted">{session.status}</span>
-                  {session.taskTitle && (
-                    <span className="font-medium text-cozy-wood">· {session.taskTitle}</span>
+                  {session.phase === 'focus' ? (
+                    <select
+                      aria-label={`Associate task for session ${session.id}`}
+                      value={session.taskId ?? ''}
+                      onChange={(e) => void linkSessionTask(session.id, e.target.value || null)}
+                      className="rounded-lg border border-cozy-border bg-white px-2 py-1 text-[11px] text-cozy-wood outline-none focus:border-cozy-sage"
+                    >
+                      <option value="">No task linked</option>
+                      {allTasks.map((task) => (
+                        <option key={task.id} value={task.id}>
+                          {task.title}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    session.taskTitle && (
+                      <span className="font-medium text-cozy-wood">· {session.taskTitle}</span>
+                    )
                   )}
                 </div>
 

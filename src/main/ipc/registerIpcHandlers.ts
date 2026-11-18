@@ -1,19 +1,35 @@
 import { ipcMain } from 'electron';
 import { IPC_CHANNELS } from '@shared/constants/ipcChannels';
 import type {
+  CreateTaskInput,
   FocusSessionFilterInput,
+  LinkSessionTaskInput,
+  MoveGardenItemInput,
+  PlaceGardenItemInput,
   SetTimerModeInput,
   StartTimerInput,
+  TaskListFilterInput,
+  ToggleTaskCompleteInput,
+  UpdateMusicPreferencesInput,
+  UpdateTaskInput,
   UpdateTimerPreferencesInput
 } from '@shared/types/domain';
 import type { FocusHistoryService } from '../services/FocusHistoryService';
 import type { FoundationService } from '../services/FoundationService';
+import type { GardenService } from '../services/GardenService';
+import type { GoalStreakService } from '../services/GoalStreakService';
+import type { MusicService } from '../services/MusicService';
+import type { TaskService } from '../services/TaskService';
 import type { TimerSupervisor } from '../services/TimerSupervisor';
 
 export function registerIpcHandlers(
   foundationService: FoundationService,
   timerSupervisor: TimerSupervisor,
-  focusHistoryService: FocusHistoryService
+  focusHistoryService: FocusHistoryService,
+  taskService: TaskService,
+  goalStreakService: GoalStreakService,
+  musicService: MusicService,
+  gardenService: GardenService
 ): void {
   ipcMain.handle(IPC_CHANNELS.SYSTEM_GET_STATUS, () => {
     return foundationService.getSystemStatus();
@@ -92,5 +108,85 @@ export function registerIpcHandlers(
       return focusHistoryService.getHeatmap(endLocalDate, daysCount);
     }
   );
+
+  ipcMain.handle(
+    IPC_CHANNELS.FOCUS_HISTORY_LINK_TASK,
+    (_event, input: LinkSessionTaskInput) => {
+      return focusHistoryService.linkSessionToTask(input.sessionId, input.taskId);
+    }
+  );
+
+  ipcMain.handle(IPC_CHANNELS.TASKS_LIST, (_event, filter?: TaskListFilterInput) => {
+    return taskService.listTasks(filter);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.TASKS_GET_SUMMARY, (_event, referenceLocalDate: string) => {
+    return taskService.getTaskSummary(referenceLocalDate);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.TASKS_CREATE, (_event, input: CreateTaskInput) => {
+    return taskService.createTask(input);
+  });
+
+  ipcMain.handle(
+    IPC_CHANNELS.TASKS_UPDATE,
+    (_event, taskId: string, input: UpdateTaskInput) => {
+      return taskService.updateTask(taskId, input);
+    }
+  );
+
+  ipcMain.handle(
+    IPC_CHANNELS.TASKS_TOGGLE_COMPLETE,
+    (_event, input: ToggleTaskCompleteInput) => {
+      return taskService.toggleTaskCompletion(input);
+    }
+  );
+
+  ipcMain.handle(IPC_CHANNELS.TASKS_DELETE, (_event, taskId: string) => {
+    taskService.deleteTask(taskId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.GOALS_GET_DAILY, (_event, localDate: string) => {
+    return goalStreakService.syncAndGetDailyGoals(localDate);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.GOALS_CLAIM_REWARD, (_event, goalInstanceId: string) => {
+    return goalStreakService.claimGoalReward(goalInstanceId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.STREAK_GET_OVERVIEW, (_event, localDate: string) => {
+    return goalStreakService.getStreakOverview(localDate);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.MUSIC_GET_PREFERENCES, () => {
+    return musicService.getMusicPreferences();
+  });
+
+  ipcMain.handle(
+    IPC_CHANNELS.MUSIC_UPDATE_PREFERENCES,
+    (_event, input: UpdateMusicPreferencesInput) => {
+      return musicService.updateMusicPreferences(input);
+    }
+  );
+
+  ipcMain.handle(IPC_CHANNELS.GARDEN_GET_STATE, (_event, gardenId?: string) => {
+    return gardenService.getGardenState(gardenId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.GARDEN_PLACE_ITEM, (_event, input: PlaceGardenItemInput) => {
+    return gardenService.placeItem(input);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.GARDEN_MOVE_ITEM, (_event, input: MoveGardenItemInput) => {
+    return gardenService.moveItem(input);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.GARDEN_REMOVE_ITEM, (_event, placementId: string) => {
+    return gardenService.removeItem(placementId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.GARDEN_CLEAR_LAYOUT, (_event, gardenId: string) => {
+    return gardenService.clearGardenLayout(gardenId);
+  });
 }
 

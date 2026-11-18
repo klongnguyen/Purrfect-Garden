@@ -8,31 +8,12 @@ interface SectionMeta {
 }
 
 const SECTION_CATALOG: Record<
-  Exclude<NavigationSectionId, 'focus' | 'garden' | 'settings' | 'statistics'>,
+  Exclude<
+    NavigationSectionId,
+    'focus' | 'garden' | 'tasks' | 'goals' | 'music' | 'settings' | 'statistics'
+  >,
   SectionMeta
 > = {
-  tasks: {
-    title: 'Today’s Tasks',
-    milestone: 'Milestone M1.4',
-    description:
-      'Lightweight task list focused on today—create, prioritize, complete, and optionally link tasks to focus sessions.',
-    highlights: [
-      'Priorities: Low, Medium, High',
-      'Categories: Study, Work, Personal',
-      'Focus sessions never require a task to start'
-    ]
-  },
-  goals: {
-    title: 'Daily & Weekly Goals',
-    milestone: 'Milestone M1.5 & M2.5',
-    description:
-      'Consistency-focused goals that reward study effort without encouraging unhealthy overwork.',
-    highlights: [
-      '20-minute configurable daily streak target',
-      'Idempotent one-time goal reward claims',
-      'Local calendar date boundary rollover'
-    ]
-  },
   achievements: {
     title: 'Achievements',
     milestone: 'Milestone M2.4',
@@ -65,22 +46,14 @@ const SECTION_CATALOG: Record<
       'Transparent probability rates & pity counter',
       'Place owned pets directly in unlocked gardens'
     ]
-  },
-  music: {
-    title: 'Music & Soundscapes',
-    milestone: 'Milestone M1.6',
-    description:
-      'Mix Lo-fi beats and Piano tracks with Rain, Fireplace, Forest, and Ocean Waves layers.',
-    highlights: [
-      'Multi-channel ambient mixer saved locally',
-      'Optional fade-out on session completion',
-      'App stays fully functional even without audio files'
-    ]
   }
 };
 
 interface PlaceholderSectionViewProps {
-  section: Exclude<NavigationSectionId, 'focus' | 'garden' | 'settings' | 'statistics'>;
+  section: Exclude<
+    NavigationSectionId,
+    'focus' | 'garden' | 'tasks' | 'goals' | 'music' | 'settings' | 'statistics'
+  >;
 }
 
 export function PlaceholderSectionView({ section }: PlaceholderSectionViewProps) {

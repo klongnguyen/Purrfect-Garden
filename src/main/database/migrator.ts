@@ -138,5 +138,102 @@ function seedDefaultData(db: Database.Database, nowIso: string): void {
       is_active_view
     ) VALUES (?, ?, ?, 1, ?, 1)
   `).run('user_garden_starter', 'meadow_starter', 'My Cozy Meadow', nowIso);
+
+  const insertGoalTemplate = db.prepare(`
+    INSERT OR IGNORE INTO goal_templates (
+      id, period_type, metric_type, title, target_value, reward_xp, reward_item_id, is_active
+    ) VALUES (?, 'daily', ?, ?, ?, ?, NULL, 1)
+  `);
+
+  const starterGoals: Array<[string, string, string, number, number]> = [
+    ['goal_daily_focus_25m', 'focus_minutes', 'Focus for at least 25 minutes today', 25, 15],
+    ['goal_daily_sessions_2', 'focus_sessions', 'Complete 2 focus sessions today', 2, 20],
+    ['goal_daily_task_1', 'tasks_completed', 'Complete at least 1 task today', 1, 15],
+    ['goal_daily_single_20m', 'single_session_minutes', 'Finish a single focus session of 20+ minutes', 20, 20]
+  ];
+
+  for (const [id, metric, title, target, rewardXp] of starterGoals) {
+    insertGoalTemplate.run(id, metric, title, target, rewardXp);
+  }
+
+  const insertItemDef = db.prepare(`
+    INSERT OR IGNORE INTO item_definitions (
+      id, category, name, description, rarity, xp_cost, sprite_key, tile_width, tile_height, is_placeable
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, 1, 1, 1)
+  `);
+
+  const insertInventoryItem = db.prepare(`
+    INSERT OR IGNORE INTO inventory_items (
+      item_id, quantity, first_acquired_at, updated_at
+    ) VALUES (?, ?, ?, ?)
+  `);
+
+  const starterItems: Array<[string, string, string, string, string, number, string, number]> = [
+    [
+      'item_sprout_pot',
+      'plant',
+      'Terracotta Sprout',
+      'A cheerful little sprout in a warm clay pot.',
+      'common',
+      15,
+      'sprout_pot',
+      3
+    ],
+    [
+      'item_sunlit_daisy',
+      'plant',
+      'Sunlit Daisy',
+      'Bright white petals that love morning focus sessions.',
+      'common',
+      20,
+      'sunlit_daisy',
+      2
+    ],
+    [
+      'item_lavender_bush',
+      'plant',
+      'Cozy Lavender',
+      'Fragrant purple stems that bring calm to your meadow.',
+      'uncommon',
+      35,
+      'lavender_bush',
+      2
+    ],
+    [
+      'item_stepping_stone',
+      'decor',
+      'Mossy Stepping Stone',
+      'Flat garden stone edged with soft green moss.',
+      'common',
+      10,
+      'stepping_stone',
+      4
+    ],
+    [
+      'item_wooden_lantern',
+      'decor',
+      'Warm Garden Lantern',
+      'A handcrafted wooden lantern with a gentle glow.',
+      'rare',
+      45,
+      'wooden_lantern',
+      1
+    ],
+    [
+      'item_watering_can',
+      'tool',
+      'Copper Watering Can',
+      'A shiny vintage watering can resting on the grass.',
+      'uncommon',
+      30,
+      'watering_can',
+      1
+    ]
+  ];
+
+  for (const [id, category, name, desc, rarity, cost, spriteKey, qty] of starterItems) {
+    insertItemDef.run(id, category, name, desc, rarity, cost, spriteKey);
+    insertInventoryItem.run(id, qty, nowIso, nowIso);
+  }
 }
 

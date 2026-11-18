@@ -6,6 +6,10 @@ import { createDatabaseConnection } from './database/connection';
 import { runMigrations } from './database/migrator';
 import { FoundationService } from './services/FoundationService';
 import { FocusHistoryService } from './services/FocusHistoryService';
+import { GardenService } from './services/GardenService';
+import { GoalStreakService } from './services/GoalStreakService';
+import { MusicService } from './services/MusicService';
+import { TaskService } from './services/TaskService';
 import { TimerSupervisor } from './services/TimerSupervisor';
 import { registerIpcHandlers } from './ipc/registerIpcHandlers';
 
@@ -80,13 +84,25 @@ app.whenReady().then(() => {
 
   const foundationService = new FoundationService(database, dbPath);
   const focusHistoryService = new FocusHistoryService(database);
+  const taskService = new TaskService(database);
+  const goalStreakService = new GoalStreakService(database);
+  const musicService = new MusicService(database);
+  const gardenService = new GardenService(database);
   timerSupervisor = new TimerSupervisor(database, {
     onTick: (snapshot) => broadcastToRenderer(IPC_CHANNELS.TIMER_TICK_EVENT, snapshot),
     onCompleted: (result) =>
       broadcastToRenderer(IPC_CHANNELS.TIMER_COMPLETED_EVENT, result)
   });
 
-  registerIpcHandlers(foundationService, timerSupervisor, focusHistoryService);
+  registerIpcHandlers(
+    foundationService,
+    timerSupervisor,
+    focusHistoryService,
+    taskService,
+    goalStreakService,
+    musicService,
+    gardenService
+  );
 
   mainWindow = createMainWindow();
 

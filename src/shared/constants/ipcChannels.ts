@@ -16,7 +16,24 @@ export const IPC_CHANNELS = Object.freeze({
   TIMER_COMPLETED_EVENT: 'timer:completed-event',
   FOCUS_HISTORY_GET_STATS: 'focus-history:get-stats',
   FOCUS_HISTORY_LIST_SESSIONS: 'focus-history:list-sessions',
-  FOCUS_HISTORY_GET_HEATMAP: 'focus-history:get-heatmap'
+  FOCUS_HISTORY_GET_HEATMAP: 'focus-history:get-heatmap',
+  FOCUS_HISTORY_LINK_TASK: 'focus-history:link-task',
+  TASKS_LIST: 'tasks:list',
+  TASKS_GET_SUMMARY: 'tasks:get-summary',
+  TASKS_CREATE: 'tasks:create',
+  TASKS_UPDATE: 'tasks:update',
+  TASKS_TOGGLE_COMPLETE: 'tasks:toggle-complete',
+  TASKS_DELETE: 'tasks:delete',
+  GOALS_GET_DAILY: 'goals:get-daily',
+  GOALS_CLAIM_REWARD: 'goals:claim-reward',
+  STREAK_GET_OVERVIEW: 'streak:get-overview',
+  MUSIC_GET_PREFERENCES: 'music:get-preferences',
+  MUSIC_UPDATE_PREFERENCES: 'music:update-preferences',
+  GARDEN_GET_STATE: 'garden:get-state',
+  GARDEN_PLACE_ITEM: 'garden:place-item',
+  GARDEN_MOVE_ITEM: 'garden:move-item',
+  GARDEN_REMOVE_ITEM: 'garden:remove-item',
+  GARDEN_CLEAR_LAYOUT: 'garden:clear-layout'
 } as const);
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

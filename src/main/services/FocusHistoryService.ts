@@ -273,21 +273,57 @@ export class FocusHistoryService {
       )
       .all(...params) as SessionHistoryRow[];
 
-    return rows.map((row) => ({
-      id: row.id,
-      mode: row.mode,
-      phase: row.phase,
-      status: row.status,
-      targetSeconds: row.target_seconds,
-      recordedSeconds: row.recorded_seconds,
-      taskId: row.task_id,
-      localDate: row.local_date,
-      startedAt: row.started_at,
-      endedAt: row.ended_at,
-      xpAwarded: row.xp_awarded,
-      taskTitle: row.task_title,
-      taskCategory: row.task_category
-    }));
+    return rows.map(mapSessionHistoryRow);
+  }
+
+  linkSessionToTask(sessionId: string, taskId: string | null): FocusSessionHistoryItemDTO {
+    const existingSession = this.db
+      .prepare('SELECT id FROM focus_sessions WHERE id = ?')
+      .get(sessionId) as { id: string } | undefined;
+
+    if (!existingSession) {
+      throw new Error(`Focus session not found: ${sessionId}`);
+    }
+
+    if (taskId !== null) {
+      const existingTask = this.db
+        .prepare('SELECT id FROM tasks WHERE id = ?')
+        .get(taskId) as { id: string } | undefined;
+      if (!existingTask) {
+        throw new Error(`Task not found: ${taskId}`);
+      }
+    }
+
+    const nowIso = new Date().toISOString();
+    this.db
+      .prepare('UPDATE focus_sessions SET task_id = ?, updated_at = ? WHERE id = ?')
+      .run(taskId, nowIso, sessionId);
+
+    const updatedRow = this.db
+      .prepare(
+        `
+        SELECT
+          fs.id,
+          fs.mode,
+          fs.phase,
+          fs.status,
+          fs.target_seconds,
+          fs.recorded_seconds,
+          fs.task_id,
+          fs.local_date,
+          fs.started_at,
+          fs.ended_at,
+          fs.xp_awarded,
+          t.title AS task_title,
+          t.category AS task_category
+        FROM focus_sessions fs
+        LEFT JOIN tasks t ON t.id = fs.task_id
+        WHERE fs.id = ?
+      `
+      )
+      .get(sessionId) as SessionHistoryRow;
+
+    return mapSessionHistoryRow(updatedRow);
   }
 
   getHeatmap(endLocalDate: string, daysCount = 84): DailyHeatmapCellDTO[] {
@@ -351,4 +387,22 @@ export class FocusHistoryService {
 
     return cells;
   }
+}
+
+function mapSessionHistoryRow(row: SessionHistoryRow): FocusSessionHistoryItemDTO {
+  return {
+    id: row.id,
+    mode: row.mode,
+    phase: row.phase,
+    status: row.status,
+    targetSeconds: row.target_seconds,
+    recordedSeconds: row.recorded_seconds,
+    taskId: row.task_id,
+    localDate: row.local_date,
+    startedAt: row.started_at,
+    endedAt: row.ended_at,
+    xpAwarded: row.xp_awarded,
+    taskTitle: row.task_title,
+    taskCategory: row.task_category
+  };
 }

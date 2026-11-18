@@ -6,7 +6,10 @@ import type {
   TimerStateSnapshot
 } from '@shared/types/domain';
 import { useAppStore } from './useAppStore';
+import { useGoalStore } from './useGoalStore';
+import { useMusicStore } from './useMusicStore';
 import { useStatsStore } from './useStatsStore';
+import { useTaskStore } from './useTaskStore';
 
 const INITIAL_TIMER_SNAPSHOT: TimerStateSnapshot = {
   sessionId: null,
@@ -82,8 +85,15 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         timerError: null
       });
       void useAppStore.getState().refreshProgression();
+      useMusicStore.getState().handleSessionCompleted();
       if (useStatsStore.getState().summary !== null) {
         void useStatsStore.getState().loadStatistics();
+      }
+      if (useTaskStore.getState().summary !== null) {
+        void useTaskStore.getState().loadTasks();
+      }
+      if (useGoalStore.getState().streakOverview !== null) {
+        void useGoalStore.getState().loadGoalsAndStreak();
       }
     });
 
@@ -145,10 +155,15 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     }
 
     try {
+      const selectedTaskId = useTaskStore.getState().selectedTaskIdForFocus;
       const snapshot = await api.timer.start(
         timerState.mode === 'custom'
-          ? { mode: 'custom', customDurationMinutes: customMinutesInput }
-          : undefined
+          ? {
+              mode: 'custom',
+              customDurationMinutes: customMinutesInput,
+              taskId: selectedTaskId
+            }
+          : { taskId: selectedTaskId }
       );
       set({ timerState: snapshot });
     } catch (error) {
@@ -230,6 +245,12 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       await useAppStore.getState().refreshProgression();
       if (useStatsStore.getState().summary !== null) {
         void useStatsStore.getState().loadStatistics();
+      }
+      if (useTaskStore.getState().summary !== null) {
+        void useTaskStore.getState().loadTasks();
+      }
+      if (useGoalStore.getState().streakOverview !== null) {
+        void useGoalStore.getState().loadGoalsAndStreak();
       }
     } catch (error) {
       set({

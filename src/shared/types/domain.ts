@@ -183,3 +183,170 @@ export interface FocusStatsSummaryDTO {
   taskBreakdown: TaskFocusBreakdownDTO[];
 }
 
+export type TaskPriority = 'low' | 'medium' | 'high';
+export type TaskViewFilter = 'today' | 'incomplete' | 'completed' | 'overdue' | 'all';
+
+export interface TaskDTO {
+  id: string;
+  title: string;
+  notes: string;
+  category: string;
+  priority: TaskPriority;
+  estimatedMinutes: number | null;
+  deadlineAt: string | null;
+  isCompleted: boolean;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  trackedFocusSeconds: number;
+  trackedSessionsCount: number;
+}
+
+export interface CreateTaskInput {
+  title: string;
+  notes?: string;
+  category?: string;
+  priority?: TaskPriority;
+  estimatedMinutes?: number | null;
+  deadlineAt?: string | null;
+}
+
+export interface UpdateTaskInput {
+  title?: string;
+  notes?: string;
+  category?: string;
+  priority?: TaskPriority;
+  estimatedMinutes?: number | null;
+  deadlineAt?: string | null;
+}
+
+export interface TaskListFilterInput {
+  view?: TaskViewFilter;
+  referenceLocalDate?: string;
+  category?: string;
+}
+
+export interface ToggleTaskCompleteInput {
+  taskId: string;
+  isCompleted: boolean;
+  localDate: string;
+}
+
+export interface TaskProgressSummaryDTO {
+  totalTasks: number;
+  completedTasks: number;
+  incompleteTasks: number;
+  overdueTasks: number;
+  todayCompletedTasks: number;
+  totalTrackedFocusSeconds: number;
+}
+
+export interface LinkSessionTaskInput {
+  sessionId: string;
+  taskId: string | null;
+}
+
+export type GoalMetricType =
+  | 'focus_minutes'
+  | 'focus_sessions'
+  | 'tasks_completed'
+  | 'single_session_minutes';
+
+export interface DailyGoalItemDTO {
+  id: string;
+  templateId: string;
+  periodKey: string;
+  title: string;
+  metricType: GoalMetricType;
+  targetValue: number;
+  currentValue: number;
+  isCompleted: boolean;
+  rewardClaimed: boolean;
+  rewardXp: number;
+  completedAt: string | null;
+}
+
+export interface ClaimGoalRewardResultDTO {
+  goal: DailyGoalItemDTO;
+  xpAwarded: number;
+  newXpBalance: number;
+}
+
+export interface StreakOverviewDTO {
+  currentStreak: number;
+  longestStreak: number;
+  lastQualifiedDate: string | null;
+  streakFreezesOwned: number;
+  todayFocusSeconds: number;
+  dailyMinimumSeconds: number;
+  todayQualified: boolean;
+  nextMilestoneDays: number;
+  daysToNextMilestone: number;
+}
+
+export type AmbientLayerId = 'rain' | 'fireplace' | 'forest' | 'ocean';
+
+export interface MusicPreferencesDTO {
+  activePlaylistId: string;
+  masterVolume: number;
+  shuffleEnabled: boolean;
+  fadeOutOnSessionEnd: boolean;
+  ambienceMix: Record<AmbientLayerId, number>;
+  favoriteTrackIds: string[];
+  updatedAt: string;
+}
+
+export interface UpdateMusicPreferencesInput {
+  activePlaylistId?: string;
+  masterVolume?: number;
+  shuffleEnabled?: boolean;
+  fadeOutOnSessionEnd?: boolean;
+  ambienceMix?: Partial<Record<AmbientLayerId, number>>;
+  favoriteTrackIds?: string[];
+}
+
+export interface GardenInventoryItemDTO {
+  itemId: string;
+  name: string;
+  category: string;
+  description: string;
+  rarity: string;
+  spriteKey: string;
+  ownedQuantity: number;
+  placedCount: number;
+  availableQuantity: number;
+}
+
+export interface GardenPlacementDTO {
+  id: string;
+  gardenId: string;
+  itemId: string;
+  itemName: string;
+  category: string;
+  spriteKey: string;
+  tileX: number;
+  tileY: number;
+  rotation: number;
+  placedAt: string;
+}
+
+export interface GardenStateDTO {
+  area: GardenAreaDTO;
+  placements: GardenPlacementDTO[];
+  inventory: GardenInventoryItemDTO[];
+}
+
+export interface PlaceGardenItemInput {
+  gardenId: string;
+  itemId: string;
+  tileX: number;
+  tileY: number;
+  rotation?: number;
+}
+
+export interface MoveGardenItemInput {
+  placementId: string;
+  tileX: number;
+  tileY: number;
+}
+

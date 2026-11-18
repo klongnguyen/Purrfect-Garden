@@ -1,7 +1,20 @@
-import { AlertCircle, CheckCircle2, Clock, Flower2, ShieldCheck, Sparkles, X } from 'lucide-react';
+import { useEffect } from 'react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  CheckSquare,
+  Clock,
+  Flower2,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  X
+} from 'lucide-react';
 import type { TimerMode } from '@shared/types/domain';
 import { TimerControls } from '../components/timer/TimerControls';
 import { useAppStore } from '../stores/useAppStore';
+import { useGoalStore } from '../stores/useGoalStore';
+import { useTaskStore } from '../stores/useTaskStore';
 import { useTimerStore } from '../stores/useTimerStore';
 import { formatTimerClock, getDisplaySeconds, getPhaseDisplayLabel } from '../utils/formatTime';
 
@@ -26,6 +39,25 @@ export function FocusFoundationView() {
   const resumeTimer = useTimerStore((s) => s.resumeTimer);
   const stopTimer = useTimerStore((s) => s.stopTimer);
   const clearLastCompletion = useTimerStore((s) => s.clearLastCompletion);
+
+  const allIncompleteTasks = useTaskStore((s) => s.allIncompleteTasks);
+  const allTasks = useTaskStore((s) => s.allTasks);
+  const selectedTaskIdForFocus = useTaskStore((s) => s.selectedTaskIdForFocus);
+  const loadTasks = useTaskStore((s) => s.loadTasks);
+  const setSelectedTaskIdForFocus = useTaskStore((s) => s.setSelectedTaskIdForFocus);
+  const toggleComplete = useTaskStore((s) => s.toggleComplete);
+
+  const dailyGoals = useGoalStore((s) => s.dailyGoals);
+  const loadGoalsAndStreak = useGoalStore((s) => s.loadGoalsAndStreak);
+
+  useEffect(() => {
+    void loadTasks();
+    void loadGoalsAndStreak();
+  }, [loadTasks, loadGoalsAndStreak]);
+
+  const activeLinkedTask = timerState.linkedTaskId
+    ? allTasks.find((t) => t.id === timerState.linkedTaskId) ?? null
+    : null;
 
   const workMinutes = timerPreferences?.pomodoroWorkMinutes ?? 25;
   const shortBreak = timerPreferences?.pomodoroShortBreakMinutes ?? 5;
@@ -204,6 +236,38 @@ export function FocusFoundationView() {
             {formatTimerClock(displaySeconds)}
           </div>
 
+          {/* Optional Task Association */}
+          {isIdle ? (
+            <div className="mb-4 flex w-full max-w-sm flex-col gap-1 text-left">
+              <label
+                htmlFor="focus-task-select"
+                className="text-[11px] font-semibold uppercase tracking-wider text-cozy-muted"
+              >
+                Associated Task (Optional)
+              </label>
+              <select
+                id="focus-task-select"
+                value={selectedTaskIdForFocus ?? ''}
+                onChange={(e) => setSelectedTaskIdForFocus(e.target.value || null)}
+                className="cozy-input py-1.5 text-xs"
+              >
+                <option value="">No task linked (General Focus)</option>
+                {allIncompleteTasks.map((task) => (
+                  <option key={task.id} value={task.id}>
+                    [{task.category}] {task.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            activeLinkedTask && (
+              <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-cozy-meadow px-3 py-1 text-xs font-semibold text-cozy-sage-dark">
+                <CheckSquare className="h-3.5 w-3.5" />
+                <span>Focusing on: {activeLinkedTask.title}</span>
+              </div>
+            )
+          )}
+
           {timerState.status !== 'idle' && (
             <p className="mb-5 text-xs font-medium text-cozy-muted">
               Elapsed: {formatTimerClock(timerState.elapsedSeconds)} · Status:{' '}
@@ -269,6 +333,88 @@ export function FocusFoundationView() {
                 </span>
               </li>
             </ul>
+          </div>
+
+          <div className="cozy-card p-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-bold text-cozy-wood">
+                <CheckSquare className="h-4 w-4 text-cozy-sage-dark" />
+                <span>Today&apos;s Tasks</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveSection('tasks')}
+                className="text-xs font-semibold text-cozy-sage-dark hover:underline"
+              >
+                Manage
+              </button>
+            </div>
+            <div className="mt-3 space-y-2">
+              {allIncompleteTasks.length === 0 ? (
+                <p className="text-xs text-cozy-muted">No incomplete tasks right now.</p>
+              ) : (
+                allIncompleteTasks.slice(0, 4).map((task) => (
+                  <label
+                    key={task.id}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-cozy-border/70 bg-cozy-cream/70 px-2.5 py-1.5 text-xs"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={task.isCompleted}
+                      onChange={() => void toggleComplete(task.id, !task.isCompleted)}
+                      className="h-3.5 w-3.5 accent-cozy-sage"
+                    />
+                    <span className="truncate font-medium text-cozy-wood">{task.title}</span>
+                  </label>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="cozy-card p-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-bold text-cozy-wood">
+                <Target className="h-4 w-4 text-cozy-sage-dark" />
+                <span>Daily Goals</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveSection('goals')}
+                className="text-xs font-semibold text-cozy-sage-dark hover:underline"
+              >
+                View All
+              </button>
+            </div>
+            <div className="mt-3 space-y-2.5">
+              {dailyGoals.length === 0 ? (
+                <p className="text-xs text-cozy-muted">No daily goals loaded.</p>
+              ) : (
+                dailyGoals.slice(0, 3).map((goal) => {
+                  const pct = Math.min(
+                    100,
+                    Math.round((goal.currentValue / Math.max(1, goal.targetValue)) * 100)
+                  );
+                  return (
+                    <div key={goal.id} className="space-y-1 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="truncate font-medium text-cozy-wood">{goal.title}</span>
+                        <span className="ml-2 shrink-0 font-mono text-[11px] text-cozy-muted">
+                          {goal.currentValue}/{goal.targetValue}
+                        </span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-cozy-panel">
+                        <div
+                          style={{ width: `${pct}%` }}
+                          className={`h-full rounded-full ${
+                            goal.isCompleted ? 'bg-cozy-sage-dark' : 'bg-cozy-sage'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
         </aside>
       </div>
