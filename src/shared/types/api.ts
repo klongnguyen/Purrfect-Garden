@@ -12,13 +12,17 @@ import type {
   FocusSessionFilterInput,
   FocusSessionHistoryItemDTO,
   FocusStatsSummaryDTO,
+  GachaStateDTO,
   GardenAreaDTO,
   GardenStateDTO,
   LinkSessionTaskInput,
   MoveGardenItemInput,
   MusicPreferencesDTO,
+  PetCatalogItemDTO,
   PlaceGardenItemInput,
   ProgressionOverviewDTO,
+  RollGachaInput,
+  RollGachaResultDTO,
   SetTimerModeInput,
   StartTimerInput,
   StreakOverviewDTO,
@@ -31,6 +35,8 @@ import type {
   ToggleTaskCompleteInput,
   UnlockGardenResultDTO,
   UpdateMusicPreferencesInput,
+  UpdatePetNicknameInput,
+  UpdatePetPlacementInput,
   UpdateTaskInput,
   UpdateTimerPreferencesInput,
   XPTransactionDTO
@@ -70,6 +76,12 @@ export interface PurrfectAPI {
   achievements: {
     list(): Promise<AchievementItemDTO[]>;
     claimReward(achievementId: string): Promise<ClaimAchievementRewardResultDTO>;
+  };
+  pets: {
+    getGachaState(): Promise<GachaStateDTO>;
+    rollGacha(input: RollGachaInput): Promise<RollGachaResultDTO>;
+    updatePlacement(input: UpdatePetPlacementInput): Promise<PetCatalogItemDTO>;
+    updateNickname(input: UpdatePetNicknameInput): Promise<PetCatalogItemDTO>;
   };
   music: {
     getPreferences(): Promise<MusicPreferencesDTO>;

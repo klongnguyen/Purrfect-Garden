@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { DEFAULT_BALANCE_CONFIG } from '@shared/config/balanceConfig';
+import type { GardenWeatherMode } from '@shared/types/domain';
 import { useGardenStore, type GardenInteractionMode } from '../stores/useGardenStore';
+import { usePetStore } from '../stores/usePetStore';
 import { useTimerStore } from '../stores/useTimerStore';
 import { formatTimerClock, getDisplaySeconds, getPhaseDisplayLabel } from '../utils/formatTime';
 import { PixelGardenCanvas } from '../components/garden/PixelGardenCanvas';
@@ -20,6 +22,13 @@ const MODE_BUTTONS: ReadonlyArray<{
   { id: 'remove', label: 'Remove Item', icon: 'eraser' }
 ];
 
+const WEATHER_OPTIONS: ReadonlyArray<{ id: GardenWeatherMode; label: string }> = [
+  { id: 'sunny', label: 'Sunny' },
+  { id: 'rain', label: 'Rain' },
+  { id: 'petals', label: 'Petals' },
+  { id: 'starlight', label: 'Starlight' }
+];
+
 export function GardenFoundationView() {
   const gardenState = useGardenStore((s) => s.gardenState);
   const selectedItemId = useGardenStore((s) => s.selectedItemId);
@@ -34,6 +43,11 @@ export function GardenFoundationView() {
   const interactWithTile = useGardenStore((s) => s.interactWithTile);
   const clearGarden = useGardenStore((s) => s.clearGarden);
 
+  const gachaState = usePetStore((s) => s.gachaState);
+  const weatherMode = usePetStore((s) => s.weatherMode);
+  const loadGachaState = usePetStore((s) => s.loadGachaState);
+  const setWeatherMode = usePetStore((s) => s.setWeatherMode);
+
   const timerState = useTimerStore((s) => s.timerState);
 
   const [hoveredTile, setHoveredTile] = useState<{ x: number; y: number } | null>(null);
@@ -41,11 +55,16 @@ export function GardenFoundationView() {
 
   useEffect(() => {
     void loadGarden();
-  }, [loadGarden]);
+    void loadGachaState();
+  }, [loadGarden, loadGachaState]);
 
   const area = gardenState?.area;
   const placements = gardenState?.placements ?? [];
   const inventory = gardenState?.inventory ?? [];
+  const placedPets = useMemo(
+    () => (gachaState?.catalog ?? []).filter((p) => p.isOwned && p.placedGardenId !== null),
+    [gachaState]
+  );
 
   const gridWidth = area?.gridWidth ?? DEFAULT_BALANCE_CONFIG.garden.initialGridWidth;
   const gridHeight = area?.gridHeight ?? DEFAULT_BALANCE_CONFIG.garden.initialGridHeight;
@@ -66,7 +85,7 @@ export function GardenFoundationView() {
 
   return (
     <div className="flex h-full flex-col gap-3">
-      {/* Compact Single-Row Pixel Toolbar (Maximizes Garden Canvas Space) */}
+      {/* Compact Single-Row Pixel Toolbar */}
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
           <span className="pixel-pill">
@@ -93,6 +112,22 @@ export function GardenFoundationView() {
               </button>
             );
           })}
+
+          <div className="flex items-center gap-1.5 border-2 border-[#3D2112] bg-[#FAF0DC] px-2.5 py-1.5 text-xs font-bold text-cozy-wood shadow-pixel-sm">
+            <PixelIcon name="sparkles" size={14} className="text-[#D48B17]" />
+            <select
+              aria-label="Garden weather"
+              value={weatherMode}
+              onChange={(e) => setWeatherMode(e.target.value as GardenWeatherMode)}
+              className="bg-transparent font-bold text-cozy-wood outline-none"
+            >
+              {WEATHER_OPTIONS.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className="flex items-center gap-1.5 border-2 border-[#3D2112] bg-[#FAF0DC] px-2.5 py-1.5 text-xs font-bold text-cozy-wood shadow-pixel-sm">
             <PixelIcon name="zoom" size={14} className="text-cozy-sage-dark" />
@@ -164,20 +199,27 @@ export function GardenFoundationView() {
                     : 'Click a placed item in the garden to pick it up.'
                   : 'Click a placed item to return it to your hotbar.'}
             </span>
-            <span className="border border-[#2B160B] bg-[#4C2A16] px-2 py-0.5 font-mono text-[#F5CE86]">
-              {hoveredTile
-                ? `Tile (${hoveredTile.x}, ${hoveredTile.y})`
-                : `${placements.length} placed`}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="border border-[#2B160B] bg-[#5E9A4E] px-2 py-0.5 text-white">
+                {placedPets.length} {placedPets.length === 1 ? 'pet' : 'pets'}
+              </span>
+              <span className="border border-[#2B160B] bg-[#4C2A16] px-2 py-0.5 font-mono text-[#F5CE86]">
+                {hoveredTile
+                  ? `Tile (${hoveredTile.x}, ${hoveredTile.y})`
+                  : `${placements.length} placed`}
+              </span>
+            </div>
           </div>
 
           {/* 3/4 Top-Down Orthographic Pixel Garden Viewport */}
           <div className="min-h-0 flex-1 overflow-hidden">
             <PixelGardenCanvas
               theme={themeKey}
+              weatherMode={weatherMode}
               gridWidth={gridWidth}
               gridHeight={gridHeight}
               placements={placements}
+              placedPets={placedPets}
               interactionMode={interactionMode}
               selectedPlacementId={selectedPlacementId}
               hoveredTile={hoveredTile}
@@ -277,10 +319,14 @@ export function GardenFoundationView() {
             </div>
 
             <div className="mt-3 flex items-center gap-2.5 border-2 border-[#3D2112] bg-[#E8D5B1] p-2.5">
-              <PetIllustration species="cat" size={44} />
+              <PetIllustration
+                species={placedPets[0]?.species ?? 'cat'}
+                spriteKey={placedPets[0]?.spriteKey}
+                size={44}
+              />
               <p className="text-[11px] font-medium leading-snug text-cozy-wood">
                 {timerState.status === 'running'
-                  ? 'Miso is napping happily while your focus session grows the farm!'
+                  ? `${placedPets[0]?.nickname ?? placedPets[0]?.name.split(' ')[0] ?? 'Miso'} is cheering you on from the garden!`
                   : 'Start, pause, or complete focus sessions directly from Garden view.'}
               </p>
             </div>

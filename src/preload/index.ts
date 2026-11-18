@@ -9,12 +9,15 @@ import type {
   LinkSessionTaskInput,
   MoveGardenItemInput,
   PlaceGardenItemInput,
+  RollGachaInput,
   SetTimerModeInput,
   StartTimerInput,
   TaskListFilterInput,
   TimerStateSnapshot,
   ToggleTaskCompleteInput,
   UpdateMusicPreferencesInput,
+  UpdatePetNicknameInput,
+  UpdatePetPlacementInput,
   UpdateTaskInput,
   UpdateTimerPreferencesInput
 } from '@shared/types/domain';
@@ -68,6 +71,14 @@ const purrfectAPI: PurrfectAPI = {
     list: () => ipcRenderer.invoke(IPC_CHANNELS.ACHIEVEMENTS_LIST),
     claimReward: (achievementId: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.ACHIEVEMENTS_CLAIM_REWARD, achievementId)
+  },
+  pets: {
+    getGachaState: () => ipcRenderer.invoke(IPC_CHANNELS.PETS_GET_GACHA_STATE),
+    rollGacha: (input: RollGachaInput) => ipcRenderer.invoke(IPC_CHANNELS.PETS_ROLL_GACHA, input),
+    updatePlacement: (input: UpdatePetPlacementInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.PETS_UPDATE_PLACEMENT, input),
+    updateNickname: (input: UpdatePetNicknameInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.PETS_UPDATE_NICKNAME, input)
   },
   music: {
     getPreferences: () => ipcRenderer.invoke(IPC_CHANNELS.MUSIC_GET_PREFERENCES),

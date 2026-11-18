@@ -42,7 +42,11 @@ export const IPC_CHANNELS = Object.freeze({
   PROGRESSION_EXCHANGE_ITEM: 'progression:exchange-item',
   PROGRESSION_LIST_TRANSACTIONS: 'progression:list-transactions',
   ACHIEVEMENTS_LIST: 'achievements:list',
-  ACHIEVEMENTS_CLAIM_REWARD: 'achievements:claim-reward'
+  ACHIEVEMENTS_CLAIM_REWARD: 'achievements:claim-reward',
+  PETS_GET_GACHA_STATE: 'pets:get-gacha-state',
+  PETS_ROLL_GACHA: 'pets:roll-gacha',
+  PETS_UPDATE_PLACEMENT: 'pets:update-placement',
+  PETS_UPDATE_NICKNAME: 'pets:update-nickname'
 } as const);
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

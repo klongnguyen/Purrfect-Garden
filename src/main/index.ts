@@ -10,6 +10,7 @@ import { FocusHistoryService } from './services/FocusHistoryService';
 import { GardenService } from './services/GardenService';
 import { GoalStreakService } from './services/GoalStreakService';
 import { MusicService } from './services/MusicService';
+import { PetService } from './services/PetService';
 import { ProgressionService } from './services/ProgressionService';
 import { TaskService } from './services/TaskService';
 import { TimerSupervisor } from './services/TimerSupervisor';
@@ -92,6 +93,7 @@ app.whenReady().then(() => {
   const gardenService = new GardenService(database);
   const progressionService = new ProgressionService(database);
   const achievementService = new AchievementService(database);
+  const petService = new PetService(database);
   timerSupervisor = new TimerSupervisor(database, {
     onTick: (snapshot) => broadcastToRenderer(IPC_CHANNELS.TIMER_TICK_EVENT, snapshot),
     onCompleted: (result) =>
@@ -107,7 +109,8 @@ app.whenReady().then(() => {
     musicService,
     gardenService,
     progressionService,
-    achievementService
+    achievementService,
+    petService
   );
 
   mainWindow = createMainWindow();

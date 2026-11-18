@@ -5,6 +5,7 @@ import { FocusFoundationView } from '../../views/FocusFoundationView';
 import { GardenFoundationView } from '../../views/GardenFoundationView';
 import { GoalsView } from '../../views/GoalsView';
 import { MusicView } from '../../views/MusicView';
+import { PetsView } from '../../views/PetsView';
 import { PlaceholderSectionView } from '../../views/PlaceholderSectionView';
 import { SettingsFoundationView } from '../../views/SettingsFoundationView';
 import { StatisticsView } from '../../views/StatisticsView';
@@ -41,6 +42,8 @@ export function AppShell() {
         return <AchievementsView />;
       case 'collection':
         return <CollectionView />;
+      case 'pets':
+        return <PetsView />;
       case 'music':
         return <MusicView />;
       case 'statistics':

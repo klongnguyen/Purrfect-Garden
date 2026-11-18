@@ -611,6 +611,44 @@ export const ITEM_SPRITE_SPECS: Record<string, PixelMatrixSpec> = {
       '........................',
       '........................'
     ]
+  },
+
+  gacha_ticket: {
+    label: 'Pet Companion Ticket',
+    palette: {
+      k: '#2B1B17',
+      y: '#F7C948',
+      Y: '#FFF2A6',
+      o: '#C78522',
+      b: '#4C5DA6',
+      w: '#FFFFFF'
+    },
+    grid: [
+      '........................',
+      '........................',
+      '........................',
+      '........................',
+      '....kkkkkkkkkkkkkkkk....',
+      '...kYYYYYYYYYYYYYYYYk...',
+      '..kYYyyyyyyyyyyyyyyYYk..',
+      '..kYybbbbbbYYbbbbbbYYk..',
+      '...kYbbbbbbYYbbbbbbYk...',
+      '..kYYbbyyyyYYyyyybbYYk..',
+      '..kYYbbywyyYYyywybbYYk..',
+      '..kYYbbyyyyYYyyyybbYYk..',
+      '...kYbbbbbbYYbbbbbbYk...',
+      '..kYYboooooYYooooobYYk..',
+      '..kYyyyyyyyyyyyyyyyyYk..',
+      '...kkooooooooooooookk...',
+      '....kkkkkkkkkkkkkkkk....',
+      '........................',
+      '........................',
+      '........................',
+      '........................',
+      '........................',
+      '........................',
+      '........................'
+    ]
   }
 };
 
@@ -1193,16 +1231,100 @@ export function AchievementIllustration({
   return <PixelMatrix spec={spec} size={size} className={className} />;
 }
 
+const PET_PALETTE_VARIANTS: Record<string, Record<string, string>> = {
+  cat_calico: {
+    k: '#241816',
+    o: '#F59E7B',
+    O: '#FFE7D6',
+    d: '#4A3A3A',
+    w: '#FFFDFB',
+    s: '#EADFD8',
+    p: '#F48FB1',
+    r: '#E2506A',
+    g: 'rgba(0,0,0,0.22)'
+  },
+  cat_starlight: {
+    k: '#131126',
+    o: '#6B66C9',
+    O: '#9E99EB',
+    d: '#403C8C',
+    w: '#EFEAFF',
+    s: '#C9C2ED',
+    p: '#F472B6',
+    r: '#FACC15',
+    g: 'rgba(12,10,36,0.28)'
+  },
+  dog_corgi: {
+    k: '#22150D',
+    t: '#DF8A3E',
+    T: '#F7BE7C',
+    d: '#B36324',
+    e: '#C86D2A',
+    E: '#F0A45C',
+    c: '#FFFDF7',
+    g: 'rgba(0,0,0,0.16)'
+  },
+  dog_samoyed: {
+    k: '#262B38',
+    t: '#F5F7FA',
+    T: '#FFFFFF',
+    d: '#CBD5E1',
+    e: '#DDE5EF',
+    E: '#F8FAFC',
+    c: '#FFFFFF',
+    g: 'rgba(30,41,59,0.16)'
+  },
+  capy_onsen: {
+    k: '#241812',
+    g: '#86EFAC',
+    y: '#F8FAFC',
+    Y: '#FFFFFF',
+    b: '#A47148',
+    B: '#C8966C',
+    d: '#7F5230',
+    s: '#59371E',
+    p: '#FDA4AF',
+    h: 'rgba(90, 62, 36, 0.25)'
+  },
+  capy_sakura: {
+    k: '#2A1822',
+    g: '#4D9E4A',
+    y: '#F472B6',
+    Y: '#FBCFE8',
+    b: '#C68D6A',
+    B: '#E4B18D',
+    d: '#9C6648',
+    s: '#6E4530',
+    p: '#F43F5E',
+    h: 'rgba(130, 88, 52, 0.25)'
+  }
+};
+
+export function resolvePetSpriteSpec(
+  species: 'cat' | 'dog' | 'capybara',
+  spriteKey?: string
+): PixelMatrixSpec {
+  const base = PET_SPECS[species];
+  const override = spriteKey ? PET_PALETTE_VARIANTS[spriteKey] : undefined;
+  if (!override) return base;
+  return {
+    ...base,
+    palette: override
+  };
+}
+
 export function PetIllustration({
   species,
+  spriteKey,
   size = 112,
   className = ''
 }: {
   species: 'cat' | 'dog' | 'capybara';
+  spriteKey?: string;
   size?: number;
   className?: string;
 }) {
-  const spec = PET_SPECS[species];
+  const spec = resolvePetSpriteSpec(species, spriteKey);
   return <PixelMatrix spec={spec} size={size} className={className} />;
 }
 

@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { GardenPlacementDTO } from '@shared/types/domain';
+import type {
+  GardenPlacementDTO,
+  GardenWeatherMode,
+  PetCatalogItemDTO
+} from '@shared/types/domain';
 import type { GardenInteractionMode } from '../../stores/useGardenStore';
 import { createPixelPainter, type PixelPainter } from './pixelCanvasUtils';
-import { ITEM_SPRITE_SPECS } from './PixelSprite';
+import { ITEM_SPRITE_SPECS, resolvePetSpriteSpec } from './PixelSprite';
 
 const CANVAS_W = 640;
 const CANVAS_H = 400;
@@ -531,9 +535,11 @@ function drawTabbyCatWithHeart(p: PixelPainter, x: number, y: number) {
 
 interface PixelGardenCanvasProps {
   theme: string;
+  weatherMode?: GardenWeatherMode;
   gridWidth: number;
   gridHeight: number;
   placements: GardenPlacementDTO[];
+  placedPets?: PetCatalogItemDTO[];
   interactionMode: GardenInteractionMode;
   selectedPlacementId: string | null;
   hoveredTile: { x: number; y: number } | null;
@@ -544,9 +550,11 @@ interface PixelGardenCanvasProps {
 
 export function PixelGardenCanvas({
   theme,
+  weatherMode = 'sunny',
   gridWidth,
   gridHeight,
   placements,
+  placedPets = [],
   interactionMode,
   selectedPlacementId,
   hoveredTile,
@@ -829,11 +837,73 @@ export function PixelGardenCanvas({
     drawFlowerBush(p, 384, 324, '#FACC15', pal);
     drawFlowerBush(p, 462, 322, '#A78BFA', pal);
     drawShrub(p, 482, 320, pal);
+
+    // 9. Deployed Collectible Pet Companions Walking/Sitting in Garden Courtyard (M3.3)
+    placedPets.forEach((pet, idx) => {
+      const petTileX = Math.max(
+        0,
+        Math.min(gridWidth - 1, pet.tileX ?? ((idx * 3 + 2) % gridWidth))
+      );
+      const petTileY = Math.max(
+        0,
+        Math.min(gridHeight - 1, pet.tileY ?? (1 + Math.floor((idx * 2) % gridHeight)))
+      );
+      const cx = geometry.originX + petTileX * geometry.tileW + Math.floor(geometry.tileW / 2);
+      const bottomY = geometry.originY + petTileY * geometry.tileH + geometry.tileH - 2;
+      const petSpec = resolvePetSpriteSpec(pet.species, pet.spriteKey);
+      p.stampMatrix(petSpec.grid, petSpec.palette, cx - 16, bottomY - 26, 1);
+
+      // Tiny pixel name badge & floating heart indicator above placed pet
+      p.px(cx + 10, bottomY - 27, '#E24B5B');
+      p.px(cx + 12, bottomY - 27, '#E24B5B');
+      p.rect(cx + 9, bottomY - 26, 5, 2, '#E24B5B');
+      p.px(cx + 11, bottomY - 24, '#E24B5B');
+    });
+
+    // 10. Dynamic Pixel Weather & Atmosphere Overlay (M3.3)
+    if (weatherMode === 'rain') {
+      p.rect(0, 0, CANVAS_W, CANVAS_H, 'rgba(26, 50, 86, 0.24)');
+      for (let i = 0; i < 68; i += 1) {
+        const rx = (i * 53 + 17) % (CANVAS_W - 8);
+        const ry = (i * 37 + 11) % (CANVAS_H - 12);
+        p.rect(rx, ry, 1, 5, '#BAE6FD');
+        p.px(rx - 1, ry + 5, '#7DD3FC');
+        if (i % 4 === 0) {
+          p.rect(rx - 2, ry + 8, 3, 1, 'rgba(224, 242, 254, 0.65)');
+        }
+      }
+    } else if (weatherMode === 'petals') {
+      p.rect(0, 0, CANVAS_W, CANVAS_H, 'rgba(255, 224, 238, 0.08)');
+      for (let i = 0; i < 46; i += 1) {
+        const pxX = (i * 71 + 19) % (CANVAS_W - 8);
+        const pyY = (i * 41 + 23) % (CANVAS_H - 8);
+        const petalCol = i % 3 === 0 ? '#F9A8D4' : i % 3 === 1 ? '#FBCFE8' : '#FFF1F2';
+        p.rect(pxX, pyY, 2, 2, petalCol);
+        p.px(pxX + 2, pyY + 1, petalCol);
+      }
+    } else if (weatherMode === 'starlight') {
+      p.rect(0, 0, CANVAS_W, CANVAS_H, 'rgba(12, 20, 54, 0.44)');
+      // Warm glow around farmhouse & lanterns in starlight mode
+      p.ellipse(42, 82, 16, 10, 'rgba(255, 224, 120, 0.28)');
+      p.ellipse(116, 82, 16, 10, 'rgba(255, 224, 120, 0.28)');
+      for (let i = 0; i < 34; i += 1) {
+        const fx = (i * 89 + 31) % (CANVAS_W - 12);
+        const fy = (i * 59 + 13) % (CANVAS_H - 12);
+        const spark = i % 2 === 0 ? '#67E8F9' : '#FEF08A';
+        p.px(fx, fy, '#FFFFFF');
+        p.px(fx - 1, fy, spark);
+        p.px(fx + 1, fy, spark);
+        p.px(fx, fy - 1, spark);
+        p.px(fx, fy + 1, spark);
+      }
+    }
   }, [
     theme,
+    weatherMode,
     gridWidth,
     gridHeight,
     placements,
+    placedPets,
     interactionMode,
     selectedPlacementId,
     hoveredTile,

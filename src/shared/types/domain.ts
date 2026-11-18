@@ -433,3 +433,76 @@ export interface ClaimAchievementRewardResultDTO {
   newXpBalance: number;
 }
 
+export type PetRarity = 'common' | 'rare' | 'epic' | 'legendary';
+export type GachaCurrencyType = 'ticket' | 'xp';
+export type GardenWeatherMode = 'sunny' | 'rain' | 'petals' | 'starlight';
+
+export interface PetCatalogItemDTO {
+  petDefinitionId: string;
+  species: 'cat' | 'dog' | 'capybara';
+  name: string;
+  rarity: PetRarity;
+  description: string;
+  spriteKey: string;
+  gachaWeight: number;
+  isOwned: boolean;
+  userPetId: string | null;
+  nickname: string | null;
+  duplicateCount: number;
+  placedGardenId: string | null;
+  tileX: number | null;
+  tileY: number | null;
+  acquiredAt: string | null;
+}
+
+export interface GachaHistoryItemDTO {
+  id: string;
+  currencyType: GachaCurrencyType;
+  currencySpent: number;
+  petDefinitionId: string;
+  petName: string;
+  species: 'cat' | 'dog' | 'capybara';
+  rarity: PetRarity;
+  spriteKey: string;
+  wasDuplicate: boolean;
+  pityCounterAfter: number;
+  createdAt: string;
+}
+
+export interface GachaStateDTO {
+  ticketCount: number;
+  xpBalance: number;
+  ticketCost: number;
+  xpCost: number;
+  pityCounter: number;
+  pityThreshold: number;
+  rates: Record<PetRarity, number>;
+  catalog: PetCatalogItemDTO[];
+  recentHistory: GachaHistoryItemDTO[];
+}
+
+export interface RollGachaInput {
+  currencyType: GachaCurrencyType;
+}
+
+export interface RollGachaResultDTO {
+  pet: PetCatalogItemDTO;
+  wasDuplicate: boolean;
+  duplicateBonusXp: number;
+  pityCounterAfter: number;
+  ticketCount: number;
+  newXpBalance: number;
+}
+
+export interface UpdatePetPlacementInput {
+  userPetId: string;
+  placed: boolean;
+  tileX?: number;
+  tileY?: number;
+}
+
+export interface UpdatePetNicknameInput {
+  userPetId: string;
+  nickname: string;
+}
+

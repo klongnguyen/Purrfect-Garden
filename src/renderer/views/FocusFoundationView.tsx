@@ -5,6 +5,8 @@ import { TimerControls } from '../components/timer/TimerControls';
 import { PixelIcon } from '../components/ui/PixelIcon';
 import { useAppStore } from '../stores/useAppStore';
 import { useGoalStore } from '../stores/useGoalStore';
+import { useMusicStore } from '../stores/useMusicStore';
+import { usePetStore } from '../stores/usePetStore';
 import { useTaskStore } from '../stores/useTaskStore';
 import { useTimerStore } from '../stores/useTimerStore';
 import { formatTimerClock, getDisplaySeconds, getPhaseDisplayLabel } from '../utils/formatTime';
@@ -41,10 +43,24 @@ export function FocusFoundationView() {
   const dailyGoals = useGoalStore((s) => s.dailyGoals);
   const loadGoalsAndStreak = useGoalStore((s) => s.loadGoalsAndStreak);
 
+  const isAmbientFocusMode = usePetStore((s) => s.isAmbientFocusMode);
+  const setAmbientFocusMode = usePetStore((s) => s.setAmbientFocusMode);
+  const gachaState = usePetStore((s) => s.gachaState);
+  const loadGachaState = usePetStore((s) => s.loadGachaState);
+
+  const isPlayingMusic = useMusicStore((s) => s.isPlaying);
+  const togglePlayMusic = useMusicStore((s) => s.togglePlay);
+
   useEffect(() => {
     void loadTasks();
     void loadGoalsAndStreak();
-  }, [loadTasks, loadGoalsAndStreak]);
+    void loadGachaState();
+  }, [loadTasks, loadGoalsAndStreak, loadGachaState]);
+
+  const featuredPet =
+    gachaState?.catalog.find((p) => p.isOwned && p.placedGardenId !== null) ??
+    gachaState?.catalog.find((p) => p.isOwned) ??
+    null;
 
   const activeLinkedTask = timerState.linkedTaskId
     ? allTasks.find((t) => t.id === timerState.linkedTaskId) ?? null
@@ -64,6 +80,84 @@ export function FocusFoundationView() {
   const phaseLabel = getPhaseDisplayLabel(timerState.mode, timerState.phase);
   const isIdle = timerState.status === 'idle';
 
+  if (isAmbientFocusMode) {
+    return (
+      <div className="mx-auto flex h-full max-w-5xl flex-col justify-between gap-4 border-[4px] border-[#2B160B] bg-[#141720] p-6 text-white shadow-pixel-md">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="border-2 border-[#3C5E36] bg-[#5E9A4E] px-2.5 py-1 text-xs font-bold uppercase text-white">
+              Cozy Ambient Mode
+            </span>
+            {activeLinkedTask && (
+              <span className="border-2 border-[#3E414C] bg-[#222530] px-3 py-1 text-xs font-bold text-[#F5CE5E]">
+                Task: {activeLinkedTask.title}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={togglePlayMusic}
+              className="cozy-btn-secondary py-1.5 text-xs"
+            >
+              <PixelIcon name={isPlayingMusic ? 'pause' : 'music'} size={14} />
+              <span>{isPlayingMusic ? 'Pause Music' : 'Play Lo-fi'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setAmbientFocusMode(false)}
+              className="cozy-btn-primary py-1.5 text-xs"
+            >
+              <PixelIcon name="close" size={14} />
+              <span>Exit Ambient Mode</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid flex-1 items-center gap-6 lg:grid-cols-[1.2fr_1fr]">
+          <div className="relative h-64 overflow-hidden border-[3px] border-[#3E414C] bg-[#0B0D12] shadow-pixel-md lg:h-80">
+            <GardenThemePreviewBanner theme={activeGarden?.theme ?? 'spring_meadow'} />
+            <div className="absolute bottom-3 left-3 flex items-center gap-3 border-2 border-[#2B160B] bg-[#191B22]/90 px-3 py-2">
+              <PetIllustration
+                species={featuredPet?.species ?? 'cat'}
+                spriteKey={featuredPet?.spriteKey}
+                size={48}
+              />
+              <div>
+                <p className="text-xs font-bold text-white">
+                  {featuredPet?.nickname ?? featuredPet?.name ?? 'Miso Companion'}
+                </p>
+                <p className="text-[11px] text-[#8CC973]">
+                  {timerState.status === 'running' ? 'Quietly focusing with you ♥' : 'Ready when you are'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center justify-center border-2 border-[#2B2D35] bg-[#191C24] p-6 text-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#F5CE5E]">
+              {phaseLabel}
+            </p>
+            <p className="mt-3 text-7xl font-bold tracking-tight text-white">
+              {formatTimerClock(displaySeconds)}
+            </p>
+            <p className="mt-2 text-xs font-bold capitalize text-[#9CA3AF]">
+              Status: {timerState.status} · {formatTimerClock(timerState.elapsedSeconds)} elapsed
+            </p>
+            <div className="mt-6 w-full">
+              <TimerControls />
+            </div>
+          </div>
+        </div>
+
+        <p className="text-center text-xs text-[#9CA3AF]">
+          “The garden grows when you grow.” · Focus sessions accumulate XP automatically in SQLite.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
@@ -77,13 +171,23 @@ export function FocusFoundationView() {
           </h2>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setActiveSection('settings')}
-          className="cozy-btn-secondary"
-        >
-          Configure Timer Defaults
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setAmbientFocusMode(true)}
+            className="cozy-btn-primary"
+          >
+            <PixelIcon name="sparkles" size={14} />
+            <span>Cozy Ambient Mode</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveSection('settings')}
+            className="cozy-btn-secondary"
+          >
+            Configure Timer Defaults
+          </button>
+        </div>
       </header>
 
       {/* Restored Interrupted Session Banner */}

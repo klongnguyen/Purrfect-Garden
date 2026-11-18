@@ -256,6 +256,20 @@ export class AchievementService {
           );
       }
 
+      if (row.reward_tickets > 0) {
+        this.db
+          .prepare(
+            `
+            INSERT INTO inventory_items (item_id, quantity, first_acquired_at, updated_at)
+            VALUES ('item_gacha_ticket', ?, ?, ?)
+            ON CONFLICT(item_id) DO UPDATE SET
+              quantity = quantity + excluded.quantity,
+              updated_at = excluded.updated_at
+          `
+          )
+          .run(row.reward_tickets, nowIso, nowIso);
+      }
+
       result = {
         achievement: mapAchievementRow({
           ...row,

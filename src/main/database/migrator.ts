@@ -407,5 +407,122 @@ function seedDefaultData(db: Database.Database, nowIso: string): void {
   for (const row of achievements) {
     insertAchievement.run(...row);
   }
+
+  // Phase 3: Gacha Ticket & 9 Collectible Pet Companions (Cats, Dogs, Capybaras only - NO Bears)
+  db.prepare(`
+    INSERT OR IGNORE INTO item_definitions (
+      id, category, name, description, rarity, xp_cost, sprite_key, tile_width, tile_height, is_placeable
+    ) VALUES ('item_gacha_ticket', 'ticket', 'Pet Companion Ticket', 'Redeem inside Pet Companion Gacha to meet a new furry friend.', 'rare', 80, 'gacha_ticket', 1, 1, 0)
+  `).run();
+
+  db.prepare(`
+    INSERT OR IGNORE INTO inventory_items (item_id, quantity, first_acquired_at, updated_at)
+    VALUES ('item_gacha_ticket', 2, ?, ?)
+  `).run(nowIso, nowIso);
+
+  const insertPetDef = db.prepare(`
+    INSERT OR IGNORE INTO pet_definitions (
+      id, species, name, rarity, description, sprite_key, gacha_weight
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const petRoster: Array<[string, string, string, string, string, string, number]> = [
+    [
+      'pet_cat_miso',
+      'cat',
+      'Miso the Tabby Cat',
+      'common',
+      'Warm orange-and-white tabby who curls up near your porch during focus blocks.',
+      'cat_tabby',
+      30
+    ],
+    [
+      'pet_dog_biscuit',
+      'dog',
+      'Biscuit the Golden Pup',
+      'common',
+      'Cheerful floppy-eared golden pup who celebrates every completed Pomodoro.',
+      'dog_golden',
+      25
+    ],
+    [
+      'pet_capy_yuzu',
+      'capybara',
+      'Yuzu the Chill Capybara',
+      'common',
+      'Serene capybara balancing a bright orange yuzu on top of its head.',
+      'capy_yuzu',
+      25
+    ],
+    [
+      'pet_cat_mochi',
+      'cat',
+      'Mochi the Calico Cat',
+      'rare',
+      'Soft pastel calico companion who adores afternoon rain ambience.',
+      'cat_calico',
+      12
+    ],
+    [
+      'pet_dog_latte',
+      'dog',
+      'Latte the Corgi Pup',
+      'rare',
+      'Short-legged cinnamon-tan pup trotting enthusiastically down garden paths.',
+      'dog_corgi',
+      10
+    ],
+    [
+      'pet_capy_matcha',
+      'capybara',
+      'Matcha the Onsen Capybara',
+      'rare',
+      'Placid green-tea spa companion who radiates pure deep-work calm.',
+      'capy_onsen',
+      10
+    ],
+    [
+      'pet_dog_cloud',
+      'dog',
+      'Cloud the Samoyed Pup',
+      'epic',
+      'Fluffy snow-white smiling puppy who sparkles like freshly fallen frost.',
+      'dog_samoyed',
+      6
+    ],
+    [
+      'pet_capy_sakura',
+      'capybara',
+      'Sakura the Blossom Capybara',
+      'epic',
+      'Rare spring capybara adorned with blooming sakura petals.',
+      'capy_sakura',
+      6
+    ],
+    [
+      'pet_cat_luna',
+      'cat',
+      'Luna the Starlight Cat',
+      'legendary',
+      'Mythic lavender-blue stargazing cat said to bless midnight scholars.',
+      'cat_starlight',
+      3
+    ]
+  ];
+
+  for (const pet of petRoster) {
+    insertPetDef.run(...pet);
+  }
+
+  const ownedPetsCount = (
+    db.prepare('SELECT COUNT(*) AS cnt FROM user_pets').get() as { cnt: number }
+  ).cnt;
+  if (ownedPetsCount === 0) {
+    db.prepare(`
+      INSERT OR IGNORE INTO user_pets (
+        id, pet_definition_id, nickname, duplicate_count, placed_garden_id, tile_x, tile_y, acquired_at
+      ) VALUES ('user_pet_starter_miso', 'pet_cat_miso', 'Miso', 1, 'user_garden_starter', 2, 2, ?)
+    `).run(nowIso);
+  }
 }
 

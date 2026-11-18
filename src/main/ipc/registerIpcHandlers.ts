@@ -7,11 +7,14 @@ import type {
   LinkSessionTaskInput,
   MoveGardenItemInput,
   PlaceGardenItemInput,
+  RollGachaInput,
   SetTimerModeInput,
   StartTimerInput,
   TaskListFilterInput,
   ToggleTaskCompleteInput,
   UpdateMusicPreferencesInput,
+  UpdatePetNicknameInput,
+  UpdatePetPlacementInput,
   UpdateTaskInput,
   UpdateTimerPreferencesInput
 } from '@shared/types/domain';
@@ -21,6 +24,7 @@ import type { FoundationService } from '../services/FoundationService';
 import type { GardenService } from '../services/GardenService';
 import type { GoalStreakService } from '../services/GoalStreakService';
 import type { MusicService } from '../services/MusicService';
+import type { PetService } from '../services/PetService';
 import type { ProgressionService } from '../services/ProgressionService';
 import type { TaskService } from '../services/TaskService';
 import type { TimerSupervisor } from '../services/TimerSupervisor';
@@ -34,7 +38,8 @@ export function registerIpcHandlers(
   musicService: MusicService,
   gardenService: GardenService,
   progressionService: ProgressionService,
-  achievementService: AchievementService
+  achievementService: AchievementService,
+  petService: PetService
 ): void {
   ipcMain.handle(IPC_CHANNELS.SYSTEM_GET_STATUS, () => {
     return foundationService.getSystemStatus();
@@ -232,5 +237,27 @@ export function registerIpcHandlers(
   ipcMain.handle(IPC_CHANNELS.ACHIEVEMENTS_CLAIM_REWARD, (_event, achievementId: string) => {
     return achievementService.claimReward(achievementId);
   });
+
+  ipcMain.handle(IPC_CHANNELS.PETS_GET_GACHA_STATE, () => {
+    return petService.getGachaState();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.PETS_ROLL_GACHA, (_event, input: RollGachaInput) => {
+    return petService.rollGacha(input);
+  });
+
+  ipcMain.handle(
+    IPC_CHANNELS.PETS_UPDATE_PLACEMENT,
+    (_event, input: UpdatePetPlacementInput) => {
+      return petService.updatePetPlacement(input);
+    }
+  );
+
+  ipcMain.handle(
+    IPC_CHANNELS.PETS_UPDATE_NICKNAME,
+    (_event, input: UpdatePetNicknameInput) => {
+      return petService.updatePetNickname(input);
+    }
+  );
 }
 
